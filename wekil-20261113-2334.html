@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wEKIL ወኪል</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  /* ---------- wEKIL colours ---------- */
+  :root{
+    --bg:#262624; --sidebar:#1e1e1d; --card:#2e2d2b; --field:#2e2d2b;
+    --ink:#eceae5; --soft:#a39e96; --line:#3d3c39;
+    --accent:#d97757; --accent-d:#c96442; --gold:#d97757;
+    --tint:rgba(217,119,87,.14); --surround:#171716;
+    --bubble:#3a3936; --hover:#333231;
+    --shadow:0 16px 40px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.30);
+  }
+  html[data-theme="light"]{
+    --bg:#f9f8f6; --sidebar:#f0eee6; --card:#ffffff; --field:#f0eee6;
+    --ink:#1f1e1d; --soft:#6b6862; --line:#e3ddd2;
+    --accent:#c96442; --accent-d:#b05436; --gold:#c96442;
+    --tint:rgba(201,100,66,.10); --surround:#e8e4dc;
+    --bubble:#e9e7e2; --hover:#eceae5;
+    --shadow:0 16px 40px rgba(31,30,29,.14), 0 2px 8px rgba(31,30,29,.08);
+  }
+  body{ font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Ethiopic",sans-serif;
+        background:var(--surround); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ max-width:1100px; margin:0 auto; height:100dvh; display:flex;
+        background:var(--bg); position:relative; box-shadow:0 0 44px rgba(0,0,0,.30); overflow:hidden; }
+
+  /* ---------- Sidebar (left panel) ---------- */
+  .sidebar{ width:260px; flex:none; background:var(--sidebar); border-right:1px solid var(--line);
+            display:flex; flex-direction:column; padding:14px 12px; gap:4px; z-index:70; position:relative; }
+  .side-logo{ display:flex; align-items:center; gap:9px; padding:6px 8px 14px; }
+  .side-logo .logo{ color:var(--accent); font-size:26px; line-height:1; font-weight:400; }
+  .side-logo b{ font-family:Georgia,"Times New Roman",serif; font-size:23px; font-weight:600; letter-spacing:.2px; }
+  .side-logo span{ font-size:12px; color:var(--soft); display:block; font-family:inherit; }
+  .side-close{ display:none; margin-left:auto; background:none; border:none; color:var(--soft); font-size:20px; cursor:pointer; }
+  .new-btn{ display:flex; align-items:center; gap:9px; width:100%; border:1px solid var(--line);
+            background:var(--card); color:var(--ink); border-radius:999px; padding:10px 14px;
+            font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; margin-bottom:10px; }
+  .new-btn:hover{ background:var(--hover); }
+  .new-btn .plus{ display:flex; align-items:center; font-size:19px; line-height:1; color:var(--ink); }
+  .side-label{ font-size:11.5px; font-weight:700; letter-spacing:.6px; color:var(--soft);
+               text-transform:uppercase; padding:12px 10px 6px; }
+  .side-item{ display:flex; align-items:center; gap:11px; width:100%; border:none; background:none;
+              color:var(--ink); text-align:left; padding:9px 10px; font-size:14.5px; font-weight:500;
+              border-radius:10px; cursor:pointer; font-family:inherit; }
+  .side-item:hover{ background:var(--hover); }
+  .side-item .si{ width:20px; text-align:center; color:var(--soft); font-size:16px; flex:none; }
+  .side-item .grow{ flex:1; }
+  .chat-row{ display:flex; align-items:center; gap:2px; width:100%; }
+  .chat-open{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:1px; border:none; background:none; color:var(--ink); text-align:left; padding:8px 10px; border-radius:10px; cursor:pointer; font-family:inherit; }
+  .chat-open:hover{ background:var(--hover); }
+  .chat-row.active .chat-open{ background:var(--hover); }
+  .chat-title{ display:block; width:100%; font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chat-date{ display:block; font-size:11px; color:var(--soft); }
+  .chat-del{ flex:none; width:28px; height:28px; border:none; background:none; color:var(--soft); font-size:15px; border-radius:8px; cursor:pointer; font-family:inherit; }
+  .chat-del:hover{ background:var(--hover); color:var(--ink); }
+  .chat-del.armed{ width:auto; min-width:28px; padding:0 8px; font-size:12px; font-weight:700; color:#fff; background:#c0392b; white-space:nowrap; }
+  .chat-empty{ font-size:13px; color:var(--soft); padding:6px 10px; }
+  .side-foot{ margin-top:auto; border-top:1px solid var(--line); padding-top:10px; }
+  .side-profile{ display:flex; align-items:center; gap:10px; width:100%; border:none; background:none;
+                 color:var(--ink); padding:8px 10px; border-radius:10px; cursor:pointer; font-family:inherit; text-align:left; }
+  .side-profile:hover{ background:var(--hover); }
+  .side-profile .p-av{ width:32px; height:32px; flex:none; border-radius:50%; background:var(--accent);
+                        color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; }
+  .side-profile b{ font-size:14px; display:block; }
+  .side-profile span{ font-size:12px; color:var(--soft); }
+  .profile-menu{ position:absolute; left:12px; right:12px; bottom:78px; z-index:75;
+                 background:var(--card); border:1px solid var(--line); border-radius:16px;
+                 box-shadow:var(--shadow); padding:6px; display:none; }
+  .profile-menu.open{ display:block; }
+  .profile-menu .pm-item{ width:100%; display:flex; align-items:center; gap:11px; border:none; background:none;
+                 color:var(--ink); text-align:left; padding:10px; font-size:14.5px; font-weight:500;
+                 border-radius:10px; cursor:pointer; font-family:inherit; }
+  .profile-menu .pm-item:hover{ background:var(--hover); }
+  .profile-menu .mi{ width:20px; flex:none; text-align:center; color:var(--soft); font-size:16px; }
+  .profile-menu .grow{ flex:1; }
+  .profile-menu .key{ font-size:12px; color:var(--soft); }
+  .profile-menu .chev{ color:var(--soft); opacity:.65; }
+  .profile-menu .pm-div{ height:1px; background:var(--line); margin:5px 8px; }
+  .learn-menu{ position:absolute; left:calc(100% + 8px); bottom:0; z-index:76; min-width:215px; background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:6px; display:none; }
+  .learn-menu.open{ display:block; }
+  .learn-menu .lm-item{ width:100%; display:flex; align-items:center; gap:10px; border:none; background:none; color:var(--ink); text-align:left; padding:10px 12px; font-size:14.5px; font-weight:500; border-radius:10px; cursor:pointer; font-family:inherit; }
+  .learn-menu .lm-item:hover{ background:var(--hover); }
+  @media (max-width:760px){ .learn-menu{ left:0; right:0; bottom:calc(100% + 8px); min-width:0; } }
+  /* ---------- Premium menus & icons ---------- */
+  @keyframes menuIn{ from{ opacity:0; transform:translateY(6px) scale(.98); } to{ opacity:1; transform:none; } }
+  .profile-menu.open, .learn-menu.open, .plus-menu.open{ animation:menuIn .15s ease-out; }
+  .setdlg.open, .cdlg.open{ animation:menuIn .18s ease-out; }
+  .profile-menu .pm-item, .learn-menu .lm-item, .plus-menu button, .side-item, .srow-item{ transition:background .12s ease; }
+  .side-item .si, .profile-menu .mi, .plus-menu .mi, .srow-item .si{ display:flex; align-items:center; justify-content:center; }
+  .side-item .si svg, .profile-menu .mi svg, .plus-menu .mi svg, .srow-item .si svg{ width:18px; height:18px; display:block; }
+  .chip .cic{ display:flex; align-items:center; }
+  .chip .cic svg{ width:16px; height:16px; display:block; }
+  .plan-ic svg{ width:30px; height:30px; }
+  .side-logo .logo svg{ width:26px; height:26px; display:block; }
+  .greet h1 .logo svg{ width:34px; height:34px; display:block; }
+  .pay-logo svg{ width:44px; height:44px; display:block; margin:0 auto; }
+  .row .avatar svg{ width:18px; height:18px; display:block; }
+  .mk-tile svg{ width:38px; height:38px; }
+  .art-thumb .ic svg{ width:26px; height:26px; }
+  .hamburger svg{ width:20px; height:20px; }
+  .new-btn .plus svg{ width:18px; height:18px; display:block; }
+  .round-btn svg{ width:22px; height:22px; }
+  .mini-btn svg{ width:14px; height:14px; vertical-align:-2px; }
+  .attach-row svg{ width:16px; height:16px; }
+  .art-thumb.mine{ background:linear-gradient(135deg,#d97757,#8a3b22); }
+  .cr-label{ display:block; font-size:13px; font-weight:700; color:var(--soft); margin:14px 0 6px; }
+  .cf-val{ font-size:15px; line-height:1.5; word-break:break-word; }
+  #cfYesBtn{ margin-top:18px; }
+  .rs-item{ padding:10px 2px; border-bottom:1px solid var(--line); font-size:14.5px; word-break:break-word; }
+  #rsReplaceBtn{ margin-top:16px; }
+  .fb-count{ text-align:right; font-size:12px; color:var(--soft); margin-top:6px; }
+  #fbSendBtn{ margin-top:14px; }
+  .fb-item{ padding:12px 2px; border-bottom:1px solid var(--line); }
+  .fb-text{ font-size:14.5px; line-height:1.5; word-break:break-word; }
+  .fb-meta{ font-size:12px; color:var(--soft); margin-top:4px; }
+  .fb-empty{ padding:12px 2px; font-size:14px; color:var(--soft); }
+  .cr-input, .cr-area{ width:100%; box-sizing:border-box; border:1px solid var(--line); background:var(--field); color:var(--ink); border-radius:12px; padding:11px 12px; font-size:15px; font-family:inherit; outline:none; }
+  .cr-input:focus, .cr-area:focus{ border-color:var(--accent); }
+  .cr-area{ resize:vertical; min-height:120px; line-height:1.5; }
+  .cr-card{ display:flex; align-items:center; gap:10px; margin-top:10px; border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 12px; }
+  .cr-card span{ flex:1; font-size:14px; }
+  .cr-open{ border:none; border-radius:999px; padding:8px 16px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; background:var(--accent); color:#fff; flex:none; }
+  .close-btn.danger{ color:#e5484d; }
+  .side-backdrop{ display:none; }
+
+  /* ---------- Main column ---------- */
+  .main{ flex:1; display:flex; flex-direction:column; min-width:0; background:var(--bg); position:relative; }
+  header{ display:flex; align-items:center; gap:10px; padding:12px 16px; position:relative; z-index:30; }
+  .hamburger{ display:none; width:38px; height:38px; flex:none; border-radius:10px; border:none;
+              background:none; color:var(--ink); font-size:20px; cursor:pointer; }
+  .hamburger:hover{ background:var(--hover); }
+  .top-title{ font-family:Georgia,"Times New Roman",serif; font-size:18px; font-weight:600; }
+  .top-title span{ color:var(--soft); font-size:13px; font-family:Inter,system-ui,sans-serif; margin-left:6px; }
+  header .spacer{ flex:1; }
+  .icon-btn{ width:38px; height:38px; flex:none; border-radius:50%; border:none;
+             background:none; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .icon-btn:hover{ background:var(--hover); }
+  .icon-btn:active{ transform:scale(.94); }
+  .plan-pill{ font-size:12.5px; color:var(--soft); }
+  .plan-pill b{ color:var(--accent); font-weight:700; cursor:pointer; }
+
+  /* ---------- Three-dot menu ---------- */
+  .menu{ position:absolute; top:58px; right:12px; width:252px; background:var(--card); color:var(--ink);
+         border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); z-index:50;
+         padding:6px; display:none; }
+  .menu.open{ display:block; }
+  .menu button{ width:100%; display:flex; align-items:center; gap:12px; border:none; background:none;
+                color:var(--ink); text-align:left; padding:10px; font-size:14.5px; font-weight:500;
+                border-radius:10px; cursor:pointer; font-family:inherit; }
+  .menu button:hover{ background:var(--hover); }
+  .menu .mi{ width:20px; flex:none; text-align:center; color:var(--soft); font-size:16px; }
+  .menu .grow{ flex:1; }
+  .menu .chev{ color:var(--soft); opacity:.65; }
+  .pill{ font-size:11px; font-weight:800; padding:3px 8px; border-radius:999px; background:var(--field); color:var(--soft); }
+  .composer{ position:relative; }
+  .plus-menu{ position:absolute; left:0; bottom:calc(100% + 10px); width:288px; max-width:88vw; background:var(--card); color:var(--ink);
+         border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); z-index:50;
+         padding:6px; display:none; }
+  .plus-menu.open{ display:block; }
+  .plus-menu button{ width:100%; display:flex; align-items:center; gap:12px; border:none; background:none;
+                color:var(--ink); text-align:left; padding:10px; font-size:14.5px; font-weight:500;
+                border-radius:10px; cursor:pointer; font-family:inherit; }
+  .plus-menu button:hover{ background:var(--hover); }
+  .plus-menu .mi{ width:20px; flex:none; text-align:center; color:var(--soft); font-size:16px; }
+  .plus-menu .grow{ flex:1; }
+  .plus-menu .chev{ color:var(--soft); opacity:.65; }
+  .plus-menu .key{ font-size:12px; color:var(--soft); }
+  .attach-row{ display:none; align-items:center; gap:8px; background:var(--field); border:1px solid var(--line);
+               border-radius:999px; padding:6px 8px 6px 12px; margin-bottom:8px; font-size:13px; }
+  .attach-row.show{ display:flex; }
+  .attach-row .grow{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .attach-row button{ border:none; background:none; color:var(--soft); font-size:15px; cursor:pointer; }
+  /* ---------- Centered dialogs (search / language picker) ---------- */
+  .cdlg-backdrop{ position:absolute; inset:0; background:rgba(10,10,10,.55); z-index:75; display:none; }
+  .cdlg-backdrop.open{ display:block; }
+  .cdlg{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:560px; max-width:94vw; max-height:88%;
+         background:var(--bg); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
+         z-index:76; display:none; flex-direction:column; overflow:hidden; }
+  .cdlg.open{ display:flex; }
+  .sdlg-head{ display:flex; align-items:center; gap:8px; padding:14px 16px 8px; }
+  .sdlg-head input{ flex:1; border:none; background:transparent; color:var(--ink); font-size:16px; font-family:inherit; outline:none; padding:6px 2px; }
+  .sdlg-head h3{ flex:1; font-size:17px; font-weight:600; font-family:Georgia,"Times New Roman",serif; }
+  .sdlg-tabs{ display:flex; gap:6px; padding:4px 16px 10px; border-bottom:1px solid var(--line); overflow-x:auto; }
+  .stab{ flex:none; border:none; background:none; color:var(--soft); border-radius:999px; padding:7px 13px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .stab:hover{ background:var(--hover); color:var(--ink); }
+  .stab.active{ background:var(--hover); color:var(--ink); font-weight:700; }
+  .sdlg-body{ flex:1; overflow-y:auto; padding:10px 10px 16px; }
+  .sdlg-sec{ font-size:12px; font-weight:700; letter-spacing:.5px; color:var(--soft); text-transform:uppercase; padding:10px 10px 6px; }
+  .srow-item{ width:100%; display:flex; align-items:center; gap:12px; border:none; background:none; color:var(--ink);
+              text-align:left; padding:10px; font-size:14.5px; font-weight:500; border-radius:12px; cursor:pointer; font-family:inherit; }
+  .srow-item:hover{ background:var(--hover); }
+  .srow-item .si{ width:22px; flex:none; text-align:center; color:var(--soft); font-size:16px; }
+  .srow-item .grow{ flex:1; min-width:0; }
+  .srow-item b{ display:block; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .srow-item span{ font-size:12.5px; color:var(--soft); }
+  .srow-item .chev{ color:var(--soft); }
+  .sdlg-empty{ padding:22px 14px; text-align:center; color:var(--soft); font-size:14px; }
+  .sdlg-foot{ display:flex; gap:18px; padding:10px 18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--soft); }
+  .sdlg-foot kbd{ background:var(--field); border:1px solid var(--line); border-radius:6px; padding:1px 7px; font-size:11.5px; font-family:inherit; }
+  .lang-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:6px 16px 20px; }
+  .lang-cell{ border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:14px; padding:14px 12px;
+              text-align:left; cursor:pointer; font-family:inherit; position:relative; min-width:0; }
+  .lang-cell:hover{ background:var(--hover); }
+  .lang-cell b{ display:block; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lang-cell span{ font-size:12.5px; color:var(--soft); display:block; margin-top:2px; }
+  .lang-cell .check{ position:absolute; top:10px; right:12px; color:var(--accent); font-size:16px; font-weight:800; display:none; }
+  .lang-cell.sel .check{ display:block; }
+  .lang-cell.sel{ border-color:var(--accent); }
+  /* ---------- Artifacts page ---------- */
+  .art-tools{ display:flex; align-items:center; gap:8px; padding:12px 18px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .art-tools input{ flex:1; min-width:140px; border:1px solid var(--line); background:var(--field); color:var(--ink); border-radius:999px; padding:9px 14px; font-size:14px; font-family:inherit; outline:none; }
+  .art-body{ flex:1; overflow-y:auto; padding:16px 18px 30px; }
+  .art-sec{ font-size:15px; font-weight:700; margin:6px 0 12px; }
+  .today-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow); margin-bottom:16px; }
+  .today-card h3{ font-size:17px; font-family:Georgia,"Times New Roman",serif; font-weight:600; margin-bottom:6px; }
+  .today-row{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+  .today-row:last-child{ border-bottom:none; }
+  .today-label{ font-size:14px; color:var(--soft); }
+  .today-num{ font-size:26px; font-weight:800; text-align:right; }
+  .today-sec{ font-size:14px; font-weight:700; margin:14px 0 4px; }
+  .today-debt{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:8px 0; font-size:15px; }
+  .today-debt b{ font-weight:700; }
+  .today-debt span{ color:var(--soft); }
+  .today-note{ font-size:13.5px; color:var(--soft); padding:8px 0 2px; }
+  .mk-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:22px; }
+  .mk-card{ border:none; background:none; cursor:pointer; font-family:inherit; padding:0; text-align:left; }
+  .mk-tile{ height:96px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:38px; color:#fff; }
+  .mk-tile.blue{ background:#2f5fd0; } .mk-tile.brown{ background:#9a5a28; } .mk-tile.purple{ background:#6a3fb5; }
+  .mk-card span.lb{ display:block; margin-top:8px; font-size:14.5px; font-weight:600; color:var(--ink); }
+  .art-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .art-card{ border:1px solid var(--line); background:var(--card); border-radius:16px; overflow:hidden; cursor:pointer; font-family:inherit; padding:0; text-align:left; color:var(--ink); }
+  .art-card:hover{ background:var(--hover); }
+  .art-thumb{ height:110px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:#fff; padding:10px; text-align:center; }
+  .art-thumb .ic{ font-size:30px; }
+  .art-thumb b{ font-size:13px; line-height:1.3; }
+  .art-body2{ padding:12px 14px; }
+  .art-body2 b{ display:block; font-size:14.5px; }
+  .art-body2 span{ font-size:12.5px; color:var(--soft); }
+  .art-grid.list{ display:block; }
+  .art-grid.list .art-card{ display:flex; width:100%; margin-bottom:10px; }
+  .art-grid.list .art-thumb{ width:130px; height:88px; flex:none; }
+  .art-empty{ padding:26px 10px; text-align:center; color:var(--soft); font-size:14px; }
+  /* ---------- Plans page ---------- */
+  .plans-body{ flex:1; overflow-y:auto; padding:20px 18px 30px; }
+  .plans-sub{ text-align:center; color:var(--soft); font-size:14.5px; max-width:640px; margin:0 auto 22px; }
+  .plans-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; max-width:960px; margin:0 auto; align-items:stretch; }
+  .plan-card{ border:1px solid var(--line); background:var(--card); border-radius:18px; padding:22px 20px; display:flex; flex-direction:column; }
+  .plan-card.hot{ border:2px solid var(--accent); }
+  .plan-tag{ align-self:flex-start; background:var(--tint); color:var(--accent); font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:999px; margin-bottom:8px; }
+  .plan-ic{ font-size:30px; }
+  .plan-name{ font-size:22px; font-weight:700; margin-top:10px; font-family:Georgia,"Times New Roman",serif; }
+  .plan-sub{ color:var(--soft); font-size:14px; margin-top:2px; }
+  .plan-price{ font-size:30px; font-weight:800; margin-top:14px; }
+  .plan-price small{ font-size:14px; color:var(--soft); font-weight:600; }
+  .plan-btn{ margin-top:16px; border:none; border-radius:12px; padding:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:var(--field); color:var(--ink); }
+  .plan-card.hot .plan-btn{ background:var(--accent); color:#fff; }
+  .plan-note{ text-align:center; font-size:12.5px; color:var(--soft); margin-top:8px; }
+  .plan-feats{ margin-top:18px; border-top:1px solid var(--line); padding-top:14px; font-size:14px; }
+  .plan-feats div{ padding:4px 0; }
+  .plan-feats .ck{ color:var(--accent); font-weight:800; margin-right:6px; }
+  @media (max-width:760px){ .plans-grid{ grid-template-columns:1fr; } }
+  /* ---------- Payment screen ---------- */
+  .pay-body{ flex:1; overflow-y:auto; padding:24px 18px 30px; max-width:560px; margin:0 auto; width:100%; }
+  .pay-brand{ text-align:center; margin-bottom:20px; }
+  .pay-logo{ font-size:44px; color:var(--accent); }
+  .pay-name{ font-family:Georgia,"Times New Roman",serif; font-size:26px; font-weight:700; margin-top:2px; }
+  .pay-plan{ font-size:16px; font-weight:700; margin-top:12px; }
+  .pay-price{ font-size:26px; font-weight:800; margin-top:2px; }
+  .pay-price small{ font-size:14px; color:var(--soft); font-weight:600; }
+  .pay-soon{ text-align:center; font-size:18px; font-weight:700; margin:32px 0 24px; }
+  .pay-methods{ display:flex; gap:10px; margin-bottom:6px; }
+  .pay-method{ flex:1; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:14px; padding:13px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .pay-method.active{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .pay-count{ text-align:right; font-size:12px; color:var(--soft); margin-top:6px; }
+  .pay-err{ color:#e5484d; font-size:13.5px; margin-top:8px; }
+  #payBtn{ margin-top:14px; }
+  @media (max-width:760px){
+    .lang-grid{ grid-template-columns:repeat(2,1fr); }
+    .mk-grid{ grid-template-columns:repeat(3,1fr); }
+    .art-grid{ grid-template-columns:1fr; }
+  }
+  .pill.on{ background:var(--accent); color:#fff; }
+
+  /* ---------- Chat / greeting ---------- */
+  main{ flex:1; overflow-y:auto; padding:8px 16px 16px; display:flex; flex-direction:column; }
+  .center-col{ max-width:768px; width:100%; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+  .greet{ padding:56px 8px 8px; text-align:left; }
+  .greet h1{ font-family:Georgia,"Times New Roman",serif; font-size:38px; font-weight:500; line-height:1.15; letter-spacing:-.3px; }
+  .greet h1 .logo{ color:var(--accent); font-size:34px; }
+  .greet p{ font-size:15.5px; color:var(--soft); line-height:1.55; margin-top:12px; max-width:520px; }
+  .row{ display:flex; gap:10px; align-items:flex-start; }
+  .row .avatar{ width:30px; height:30px; font-size:16px; margin-top:2px; flex:none; border-radius:50%;
+                color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .msg{ max-width:86%; padding:12px 14px; border-radius:20px; font-size:15px; line-height:1.55; }
+  body.large .msg{ font-size:19px; }
+  body.large .chip{ font-size:17px; }
+  body.large .srow b{ font-size:17px; }
+  body.large .srow p{ font-size:14px; }
+  body.large .side-item{ font-size:16.5px; }
+  body.large #goal{ font-size:17px; }
+  body.large .greet h1{ font-size:42px; }
+  body.large #welcomeText{ font-size:17px; }
+  .msg.ai{ background:transparent; border:none; padding:12px 2px; max-width:100%; }
+  .msg.ai code{ background:var(--line); padding:1px 6px; border-radius:6px; font-size:.92em; }
+  .msg.ai a{ color:var(--accent); }
+  .msg.me{ background:var(--bubble); color:var(--ink); align-self:flex-end; border-bottom-right-radius:6px; margin-left:auto; }
+  .msg .who{ font-size:11px; font-weight:800; color:var(--accent); letter-spacing:.6px; margin-bottom:4px; }
+  .demo-tag{ display:inline-block; margin-top:8px; font-size:11px; font-weight:800;
+             background:var(--tint); color:var(--accent); border-radius:999px; padding:3px 9px; }
+  .tdots{ display:inline-flex; gap:4px; margin-left:6px; vertical-align:middle; }
+  .tdots i{ width:6px; height:6px; border-radius:50%; background:var(--soft); display:inline-block; animation:tdot 1s ease-in-out infinite; }
+  .tdots i:nth-child(2){ animation-delay:.15s; }
+  .tdots i:nth-child(3){ animation-delay:.3s; }
+  @keyframes tdot{ 0%,100%{ transform:translateY(0); opacity:.4; } 50%{ transform:translateY(-4px); opacity:1; } }
+
+  /* ---------- Quick pills under the greeting ---------- */
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; padding:4px 8px 0; }
+  .chip{ display:flex; align-items:center; gap:8px; text-align:left; background:var(--card); border:1px solid var(--line);
+         color:var(--ink); border-radius:999px; padding:9px 14px; font-size:13.5px; cursor:pointer;
+         line-height:1.4; font-family:inherit; }
+  .chip:hover{ background:var(--hover); }
+  .chip .cic{ font-size:15px; }
+  .chip .arr{ color:var(--soft); font-weight:800; }
+
+  /* ---------- Composer ---------- */
+  footer{ padding:0 16px calc(14px + env(safe-area-inset-bottom)); background:var(--bg); }
+  .composer-wrap{ max-width:768px; margin:0 auto; }
+  .composer{ background:var(--card); border:1px solid var(--line); border-radius:26px;
+             padding:12px 12px 10px; box-shadow:var(--shadow); }
+  .composer:focus-within{ border-color:var(--soft); }
+  textarea{ width:100%; resize:none; border:none; background:transparent; color:var(--ink);
+            padding:4px 6px 8px; font-size:15.5px; font-family:inherit; max-height:110px; outline:none; display:block; }
+  .composer-row{ display:flex; align-items:center; gap:8px; }
+  .round-btn{ width:34px; height:34px; flex:none; border-radius:50%; border:1px solid var(--line);
+              background:transparent; color:var(--ink); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .round-btn:hover{ background:var(--hover); }
+  .mic{ width:34px; height:34px; flex:none; border-radius:50%; border:1px solid var(--line);
+        background:transparent; color:var(--ink); cursor:pointer;
+        display:flex; align-items:center; justify-content:center; }
+  .mic:hover{ background:var(--hover); }
+  .composer-row .spacer{ flex:1; }
+  .send{ width:34px; height:34px; flex:none; border:none; border-radius:50%; cursor:pointer;
+         background:var(--accent); color:#fff; font-weight:800; font-size:17px;
+         display:flex; align-items:center; justify-content:center; }
+  .send:active{ transform:scale(.93); }
+  .hint{ font-size:11.5px; color:var(--soft); text-align:center; margin-top:9px; line-height:1.4; }
+
+  /* ---------- Sheets (Profile / Settings / About) ---------- */
+  .backdrop{ position:absolute; inset:0; background:rgba(10,10,10,.55); z-index:60; display:none; }
+  .backdrop.open{ display:block; }
+  .sheet{ position:absolute; left:0; right:0; bottom:0; max-height:86%; overflow-y:auto; z-index:61;
+          background:var(--bg); border-radius:24px 24px 0 0; padding:10px 18px calc(20px + env(safe-area-inset-bottom));
+          transform:translateY(105%); transition:transform .25s ease; border-top:1px solid var(--line); }
+  .sheet.open{ transform:translateY(0); }
+  @media (min-width:760px){
+    .sheet{ left:50%; right:auto; transform:translate(-50%,105%); width:520px; max-width:92vw; border-radius:24px; bottom:24px; border:1px solid var(--line); }
+    .sheet.open{ transform:translate(-50%,0); }
+  }
+  .grab{ width:42px; height:5px; border-radius:99px; background:var(--line); margin:2px auto 12px; }
+  .sheet h2{ font-size:19px; margin-bottom:4px; font-family:Georgia,"Times New Roman",serif; font-weight:600; }
+  .sheet .sub{ font-size:13px; color:var(--soft); margin-bottom:14px; line-height:1.45; }
+
+  /* ---------- First-run guide ---------- */
+  .intro{ position:absolute; inset:0; z-index:90; background:var(--bg); display:none; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; }
+  .intro.open{ display:flex; }
+  .intro-card{ max-width:480px; width:100%; text-align:center; }
+  .intro-logo{ width:64px; height:64px; margin:0 auto 18px; color:var(--accent); }
+  .intro h2{ font-size:26px; line-height:1.35; font-family:Georgia,"Times New Roman",serif; font-weight:600; }
+  .intro-ex{ font-size:17px; line-height:1.5; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin:18px 0 0; }
+  .intro-dots{ display:flex; gap:8px; justify-content:center; margin:22px 0; }
+  .intro-dots i{ width:8px; height:8px; border-radius:50%; background:var(--line); }
+  .intro-dots i.on{ background:var(--accent); width:24px; border-radius:99px; }
+  .intro-btns{ display:flex; flex-direction:column; }
+  .p-head{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px; margin-bottom:14px; }
+  .p-avatar{ width:74px; height:74px; border-radius:50%; background:var(--accent);
+             color:#fff; display:flex; align-items:center; justify-content:center; font-size:29px; font-weight:900;
+             box-shadow:var(--shadow); }
+  .p-head b{ font-size:17px; }
+  .p-head span{ font-size:13px; color:var(--soft); }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:6px 14px; box-shadow:var(--shadow); margin-bottom:12px; }
+  .srow{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .srow:last-child{ border-bottom:none; }
+  .srow.tap{ cursor:pointer; }
+  .srow .grow{ flex:1; }
+  .srow b{ font-size:14.5px; display:block; }
+  .srow p{ font-size:12px; color:var(--soft); margin-top:1px; line-height:1.4; }
+  .switch{ width:48px; height:28px; flex:none; border-radius:99px; background:#6b6862; border:none; cursor:pointer; position:relative; }
+  .switch::after{ content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .18s; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+  .switch.on{ background:var(--accent); }
+  .switch.on::after{ left:23px; }
+  .switch.locked{ background:var(--accent); opacity:.75; cursor:not-allowed; }
+  .switch.locked::after{ left:23px; }
+  .field-in{ width:100%; border:1px solid var(--line); background:var(--field); color:var(--ink); border-radius:12px;
+             padding:11px 12px; font-size:15px; font-family:inherit; margin:4px 0 10px; }
+  .big-btn{ width:100%; border:none; border-radius:14px; padding:13px; font-size:15px; font-weight:800; cursor:pointer;
+            background:var(--accent); color:#fff; font-family:inherit; }
+  .close-btn{ width:100%; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:14px;
+              padding:12px; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px; }
+  .toast{ position:absolute; left:50%; bottom:110px; transform:translateX(-50%) translateY(16px); z-index:80;
+          background:var(--card); color:var(--ink); border:1px solid var(--line); font-size:13.5px; font-weight:700; padding:10px 16px; border-radius:999px;
+          opacity:0; pointer-events:none; transition:.25s; white-space:nowrap; box-shadow:var(--shadow); }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+
+  /* ---------- Settings dialog (left menu + Profile pane) ---------- */
+  .setdlg{ position:absolute; inset:0; z-index:70; display:none; background:var(--bg); flex-direction:column; }
+  .setdlg.open{ display:flex; }
+  .set-head{ display:flex; align-items:center; gap:10px; padding:12px 18px; border-bottom:1px solid var(--line); }
+  .set-head h2{ font-size:19px; font-family:Georgia,"Times New Roman",serif; font-weight:600; }
+  .set-head .spacer{ flex:1; }
+  .set-body{ flex:1; display:flex; min-height:0; }
+  .set-nav{ width:224px; flex:none; border-right:1px solid var(--line); padding:12px; overflow-y:auto; }
+  .set-nav .field-in{ margin:0 0 8px; }
+  .sn-item{ display:block; width:100%; border:none; background:none; color:var(--ink); text-align:left;
+            padding:9px 10px; font-size:14.5px; font-weight:500; border-radius:10px; cursor:pointer; font-family:inherit; }
+  .sn-item:hover{ background:var(--hover); }
+  .sn-item.active{ background:var(--hover); font-weight:700; }
+  .set-pane{ flex:1; overflow-y:auto; padding:18px 22px 34px; }
+  .set-pane-inner{ max-width:620px; }
+  .set-pane h3{ font-size:19px; font-family:Georgia,"Times New Roman",serif; font-weight:600; margin-bottom:14px; }
+  .set-photo{ display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .set-photo .p-av{ width:56px; height:56px; font-size:22px; cursor:pointer; background:var(--accent);
+                color:#fff; border:none; border-radius:50%; font-weight:800;
+                display:flex; align-items:center; justify-content:center; flex:none; }
+  .set-photo span{ font-size:13px; color:var(--soft); line-height:1.45; }
+  .set-field{ margin-bottom:14px; }
+  .set-field label{ display:block; font-size:14px; font-weight:600; margin-bottom:6px; }
+  .set-field input, .set-field select{ width:100%; border:1px solid var(--line); background:var(--field); color:var(--ink);
+            border-radius:12px; padding:11px 12px; font-size:15px; font-family:inherit; }
+  .set-field select{ appearance:auto; }
+  .set-kv{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); font-size:14.5px; }
+  .set-kv:last-child{ border-bottom:none; }
+  .set-kv b{ flex:none; min-width:150px; font-weight:600; }
+  .set-kv .grow{ flex:1; word-break:break-all; }
+  .set-kv .mono{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; }
+  .mini-btn{ flex:none; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px;
+             padding:7px 13px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .mini-btn:hover{ background:var(--hover); }
+  .set-note{ font-size:13.5px; color:var(--soft); line-height:1.55; }
+  @media (max-width:760px){
+    .set-body{ flex-direction:column; }
+    .set-nav{ width:100%; border-right:none; border-bottom:1px solid var(--line); display:flex; gap:4px; overflow-x:auto; padding:8px; }
+    .set-nav .field-in{ display:none; }
+    .set-nav .sn-item{ width:auto; white-space:nowrap; }
+    .set-pane{ padding:16px 16px 30px; }
+    .set-kv b{ min-width:110px; }
+  }
+
+  /* ---------- Phone: sidebar becomes a drawer ---------- */
+  @media (max-width:760px){
+    .sidebar{ position:absolute; top:0; bottom:0; left:0; transform:translateX(-105%); transition:transform .25s ease; box-shadow:var(--shadow); }
+    .sidebar.open{ transform:translateX(0); }
+    .side-close{ display:block; }
+    .side-backdrop{ display:block; position:absolute; inset:0; background:rgba(10,10,10,.55); z-index:65; opacity:0; pointer-events:none; transition:opacity .25s; }
+    .side-backdrop.open{ opacity:1; pointer-events:auto; }
+    .hamburger{ display:flex; align-items:center; justify-content:center; }
+    .greet{ padding-top:28px; }
+    .greet h1{ font-size:32px; }
+    .plan-pill{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Left sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="side-logo">
+      <span class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 12 4-10 4 10 4-12"/></svg></span>
+      <div><b>wEKIL</b><span>ወኪል · Your agent</span></div>
+      <button class="side-close" onclick="closeSidebar()" aria-label="Close menu">✕</button>
+    </div>
+    <button class="new-btn" onclick="newChat()"><span class="plus"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span><span id="newChatLabel">New chat</span></button>
+    <div class="side-label" id="sideMenuLabel">Menu</div>
+    <button class="side-item" onclick="closeSidebar();openSearch()"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span><span class="grow" id="mSearch">Search</span></button>
+    <button class="side-item" onclick="closeSidebar();openSheet('profile')"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="grow" id="mProfile">My profile</span><span class="chev">›</span></button>
+    <button class="side-item" onclick="closeSidebar();openSheet('settings')"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="grow" id="mSettings">Settings</span><span class="chev">›</span></button>
+    <button class="side-item" onclick="closeSidebar();openSheet('about')"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span><span class="grow" id="mAbout">About wEKIL</span><span class="chev">›</span></button>
+    <button class="side-item" onclick="closeSidebar();openArtifacts()"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span class="grow" id="mArtifacts">My Creations</span><span class="chev">›</span></button>
+    <button class="side-item" onclick="closeSidebar();openFeedback()"><span class="si"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="grow" id="mFeedback">Send feedback</span><span class="chev">›</span></button>
+    <div class="side-label" id="sideChatsLabel">Chats and tasks</div>
+    <div id="chatList"></div>
+    <div class="profile-menu" id="profileMenu">
+      <button class="pm-item" onclick="closeProfileMenu();openSheet('settings')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="grow" id="pmSettings">Settings</span><span class="key">Ctrl+Shift+,</span></button>
+      <button class="pm-item" onclick="closeProfileMenu();openLanguageDialog()"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="grow" id="pmLang">Language</span><span class="pill on" id="pmLangLabel">English</span></button>
+      <button class="pm-item" onclick="closeProfileMenu();openSheet('about')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></span><span class="grow" id="pmHelp">Get help</span></button>
+      <div class="pm-div"></div>
+      <button class="pm-item" onclick="closeProfileMenu();openPlans()"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg></span><span class="grow" id="pmPricing">Monthly fee</span></button>
+      <button class="pm-item" onclick="toggleLearnMenu(event)"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span><span class="grow" id="pmLearn">Learn more</span><span class="chev">›</span></button>
+      <div class="learn-menu" id="learnMenu">
+        <button class="lm-item" onclick="closeProfileMenu();openSheet('about')"><span id="lmAbout">About wEKIL</span></button>
+        <button class="lm-item" onclick="closeProfileMenu();policySoon('usage')"><span id="lmUsage">Usage Policy</span></button>
+        <button class="lm-item" onclick="closeProfileMenu();policySoon('privacy')"><span id="lmPrivacy">Privacy Policy</span></button>
+        <button class="lm-item" onclick="closeProfileMenu();policySoon('terms')"><span id="lmTerms">Terms of Service</span></button>
+      </div>
+    </div>
+    <div class="side-foot">
+      <button class="side-profile" onclick="toggleProfileMenu(event)">
+        <span class="p-av"></span>
+        <span><b id="sideProfileName"></b><span id="sideProfileSub">Free for now · Google Gemini</span></span>
+        <span style="margin-left:auto" class="pill on">GEMINI</span>
+      </button>
+    </div>
+  </aside>
+  <div class="side-backdrop" id="sideBackdrop" onclick="closeSidebar()"></div>
+
+  <div class="main">
+    <header>
+      <button class="hamburger" onclick="openSidebar()" aria-label="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg></button>
+      <div class="top-title">wEKIL <span>ወኪል</span></div>
+      <div class="spacer"></div>
+      <button class="icon-btn" id="themeBtn" onclick="toggleDark()" aria-label="Dark mode"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8.2 8.2 0 1 1 10.8 4a6.6 6.6 0 0 0 9.2 9.2z"/></svg></button>
+    </header>
+
+    <main id="chat">
+      <div class="center-col">
+        <div class="greet" id="greetBlock">
+          <h1><span class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 12 4-10 4 10 4-12"/></svg></span> <span id="greetTitle">Good afternoon</span></h1>
+          <p id="welcomeText">I am wEKIL. Tell me what you want, and I will do it for you.</p>
+          <div class="chips">
+            <button class="chip" onclick="fillGoal(this)" data-en="What do I have today?" data-am="ዛሬ ምን አለኝ?"><span class="cic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg></span><span class="chip-tx">What do I have today?</span><span class="arr">›</span></button>
+            <button class="chip" onclick="fillGoal(this)" data-en="Remind me to call my mother" data-am="እናቴን እንድደውል አስታውሰኝ"><span class="cic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="chip-tx">Remind me to call my mother</span><span class="arr">›</span></button>
+            <button class="chip" onclick="fillGoal(this)" data-en="Save a payment of 500 birr" data-am="የ500 ብር ክፍያ አስቀምጥ"><span class="cic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg></span><span class="chip-tx">Save a payment of 500 birr</span><span class="arr">›</span></button>
+            <button class="chip" onclick="fillGoal(this)" data-en="Wake me at 6 in the morning" data-am="ጠዋት 12 ሰዓት ላይ አስነሳኝ"><span class="cic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="chip-tx">Wake me at 6 in the morning</span><span class="arr">›</span></button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="composer-wrap">
+        <div class="composer">
+          <div class="plus-menu" id="plusMenu">
+            <button onclick="plusUpload()"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span><span class="grow" id="pmUpload">Upload or add files</span><span class="key">Ctrl+U</span></button>
+            <button onclick="plusScreenshot()"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span><span class="grow" id="pmShot">Take a screenshot</span></button>
+            <button onclick="plusAction('sale')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></span><span class="grow" id="pmSale">Save a payment</span></button>
+            <button onclick="plusAction('remind')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><span class="grow" id="pmRemind">Set a reminder</span></button>
+            <button onclick="plusAction('debt')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="grow" id="pmDebt">Add a person who owes me</span></button>
+            <button onclick="plusSoon('web')"><span class="mi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="grow" id="pmWeb">Web search</span></button>
+          </div>
+          <input type="file" id="fileInput" hidden>
+          <div class="attach-row" id="attachRow"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span><span class="grow" id="attachName"></span><button onclick="removeAttach()" aria-label="Remove file">✕</button></div>
+          <textarea id="goal" rows="1" placeholder="How can I help you today?"></textarea>
+          <div class="composer-row">
+            <button class="round-btn" id="plusBtn" onclick="togglePlusMenu(event)" aria-label="Add"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+            <div class="spacer"></div>
+            <button class="mic" onclick="startMic()" aria-label="Speak"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/><path d="M8.5 21h7"/></svg></button>
+            <button class="send" id="sendBtn" onclick="sendGoal()" aria-label="Send">↑</button>
+          </div>
+        </div>
+        <div class="hint" id="hintText">wEKIL can make mistakes, so double check responses.</div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Backdrop + Sheets -->
+  <div class="backdrop" id="backdrop" onclick="closeSheets()"></div>
+
+  <div class="sheet" id="sheet-profile">
+    <div class="grab"></div>
+    <div class="p-head">
+      <div class="p-avatar"></div>
+      <b id="profileNameView"></b>
+      <span>Hawassa, Ethiopia</span>
+    </div>
+    <div class="card">
+      <div class="srow"><div class="grow"><b id="pNameLabel">Your name</b><p id="pNameHint">Used so wEKIL knows who it works for.</p></div></div>
+      <input class="field-in" id="profileName" value="">
+      <div class="srow"><div class="grow"><b id="pPlan">Plan</b><p id="pPlanVal">Free for now.</p></div><span class="pill on">GEMINI</span></div>
+    </div>
+    <button class="big-btn" id="pSave" onclick="saveProfile()">Save profile</button>
+    <button class="close-btn" onclick="closeSheets()" data-close>Close</button>
+  </div>
+
+
+  <div class="sheet" id="sheet-about">
+    <div class="grab"></div>
+    <h2 id="aTitle">About wEKIL</h2>
+    <p class="sub" id="aText">wEKIL (ወኪል) means "the one who acts for you." It is an AI agent for Ethiopia: you speak, it sees your phone screen, decides the next tap, and does it — using free Google Gemini, with no Visa, no USD, and nothing to pay. Your key stays only on your phone. Version 0.8 · Chat with wEKIL like a friend, and ask it to do phone tasks — first version controls normal screens only; telebirr and CBE are left for a later phase.</p>
+    <button class="close-btn" onclick="closeSheets()" data-close>Close</button>
+  </div>
+
+
+  <!-- Settings dialog: Account pane -->
+  <div class="setdlg" id="settingsDialog" role="dialog" aria-label="Settings">
+    <div class="set-head"><h2 id="sTitle">Settings</h2><div class="spacer"></div><button class="icon-btn" onclick="closeSettingsDialog()" aria-label="Close">✕</button></div>
+    <div class="set-body">
+      <nav class="set-nav" id="setNav">
+        <input class="field-in" id="setSearch" placeholder="Search" oninput="filterSetNav(this.value)">
+        <button class="sn-item active" data-pane="account" onclick="setPane('account')"><span id="navAccount">Account</span></button>
+        <button class="sn-item" data-pane="appearance" onclick="setPane('appearance')"><span id="navAppearance">Appearance</span></button>
+        <button class="sn-item" data-pane="language" onclick="setPane('language')"><span id="navLanguage">Language</span></button>
+        <button class="sn-item" data-pane="about" onclick="setPane('about')"><span id="navAbout">About wEKIL</span></button>
+        <button class="sn-item" data-pane="yourwekil" onclick="setPane('yourwekil',this)"><span id="navYourWekil">Your wEKIL</span></button>
+        <button class="sn-item" data-pane="notifications" onclick="setPane('notifications',this)"><span id="navNotifications">Notifications</span></button>
+        <button class="sn-item" data-pane="privacy" onclick="setPane('privacy',this)"><span id="navPrivacy">Privacy</span></button>
+      </nav>
+
+      <div class="set-pane" id="setPane-account"><div class="set-pane-inner">
+        <h3 id="spProfile">Profile</h3>
+        <div class="set-photo">
+          <div class="p-av"></div>
+          <span id="spPhotoHint">Profile photo</span>
+        </div>
+        <div class="set-field"><label id="spFullName" for="setFullName">Full name</label><input id="setFullName" value=""></div>
+        <div class="set-field"><label id="spCallYou" for="setCallName">What should wEKIL call you?</label><input id="setCallName" value=""></div>
+        <div class="set-field"><label id="spWork" for="setWork">What best describes your work?</label>
+          <select id="setWork"><option value="Not set">Not set</option><option value="Student">Student</option><option value="Developer">Developer</option><option value="Own a business">Own a business</option><option value="Business owner">Business owner</option></select>
+        </div>
+        <div class="card">
+          <div class="set-kv"><b id="spPlan">Plan</b><span class="grow" id="spPlanVal">Free for now</span></div>
+          <div class="set-kv"><b id="spModel">Model</b><span class="grow" id="spModelVal">No brain yet.</span></div>
+        </div>
+        <p style="margin-top:18px"><button class="big-btn" id="spSave" onclick="saveSettingsProfile()">Save profile</button></p>
+        <h3 id="spData" style="margin-top:22px">Data</h3>
+        <p style="margin-top:12px"><button class="big-btn" id="spBackup" onclick="backupData()">Back up my data</button></p>
+        <p style="margin-top:8px"><button class="close-btn" id="spRestore" onclick="restoreData()">Restore from backup</button></p>
+        <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="restoreFilePicked(event)">
+        <h3 id="spBrain" style="margin-top:22px">AI Brain</h3>
+        <p class="set-note" id="spBrainP">Free Google Gemini. Your key stays only on this phone.</p>
+        <p class="set-note" id="spKeyHow">Get a free key: Google AI Studio → Get API key. No card needed.</p>
+        <div class="set-field"><label id="spKeyLabel" for="geminiKey">Google Gemini key</label><input id="geminiKey" type="password" autocomplete="off" placeholder="Paste your free Gemini key here"></div>
+        <p style="margin-top:12px"><button class="big-btn" id="spKeySave" onclick="saveGeminiKey()">Save key</button></p>
+        <p style="margin-top:8px"><button class="close-btn" id="spKeyTest" onclick="testGeminiKey()">Test</button></p>
+        <p style="margin-top:8px"><button class="close-btn" id="spKeyRemove" onclick="removeGeminiKey()">Remove key</button></p>
+        <p class="set-note" id="geminiStatus">No key yet.</p>
+      </div></div>
+
+      <div class="set-pane" id="setPane-appearance" style="display:none"><div class="set-pane-inner">
+        <h3 id="apTitle">Appearance</h3>
+        <div class="card">
+          <div class="srow tap" onclick="toggleDark()"><div class="grow"><b id="setDark">Dark mode</b><p id="setDarkP">Easy on the eyes at night.</p></div><button class="switch" id="swDark" aria-label="Dark mode"></button></div>
+          <div class="srow tap" onclick="toggleText()"><div class="grow"><b id="setText">Large text</b><p id="setTextP">Bigger words in chat.</p></div><button class="switch" id="swText" aria-label="Large text"></button></div>
+          <div class="srow tap" onclick="toggleVoice()"><div class="grow"><b id="setVoice">Voice answers</b><p id="setVoiceP">wEKIL speaks its answers out loud.</p></div><button class="switch" id="swVoice" aria-label="Voice answers"></button></div>
+        </div>
+      </div></div>
+
+      <div class="set-pane" id="setPane-language" style="display:none"><div class="set-pane-inner">
+        <h3 id="lgTitle">Language</h3>
+        <div class="card">
+          <div class="srow"><div class="grow"><b id="setLang">Language</b><p>English · አማርኛ · Afaan Oromoo · ትግርኛ</p></div><button class="pill on" id="langPill2" onclick="toggleLang()">EN</button></div>
+          <div class="srow"><div class="grow"><b id="setChooseLang">Choose language</b><p id="setChooseLangP">English, አማርኛ, Afaan Oromoo, ትግርኛ</p></div><button class="mini-btn" onclick="closeSettingsDialog();openLanguageDialog()">›</button></div>
+        </div>
+        <p class="set-note" id="lgNote">Tap EN to switch to አማርኛ, and tap again to switch back.</p>
+      </div></div>
+
+      <div class="set-pane" id="setPane-about" style="display:none"><div class="set-pane-inner">
+        <h3 id="abTitleD">About wEKIL</h3>
+        <p class="set-note" id="abTextD">wEKIL (ወኪል) means "the one who acts for you." It is an AI agent for Ethiopia: you speak, it sees your phone screen, decides the next tap, and does it — using free Google Gemini, with no Visa, no USD, and nothing to pay. Your key stays only on your phone. Version 0.8 · Chat with wEKIL like a friend, and ask it to do phone tasks — first version controls normal screens only; telebirr and CBE are left for a later phase.</p>
+      </div></div>
+
+      <div class="set-pane" id="setPane-notifications" style="display:none"><div class="set-pane-inner">
+        <h3 id="ntfTitle">Notifications</h3>
+        <div class="card">
+          <div class="srow tap" onclick="toggleNtf('remind')"><div class="grow"><b id="ntfRemind">Reminders</b><p id="ntfRemindP">wEKIL tells you when the time comes.</p></div><button class="switch" id="swNtfRemind" aria-label="Reminders"></button></div>
+          <div class="srow tap" onclick="toggleNtf('appt')"><div class="grow"><b id="ntfAppt">Appointments</b><p id="ntfApptP">A message 30 minutes before.</p></div><button class="switch" id="swNtfAppt" aria-label="Appointments"></button></div>
+          <div class="srow tap" onclick="toggleNtf('alarm')"><div class="grow"><b id="ntfAlarm">Alarm</b><p id="ntfAlarmP">The wake-up alarm rings.</p></div><button class="switch" id="swNtfAlarm" aria-label="Alarm"></button></div>
+          <div class="srow tap" onclick="toggleNtf('birthday')"><div class="grow"><b id="ntfBirthday">Family birthdays</b><p id="ntfBirthdayP">A message when a family birthday is near.</p></div><button class="switch" id="swNtfBirthday" aria-label="Family birthdays"></button></div>
+          <div class="srow tap" onclick="toggleNtf('weather')"><div class="grow"><b id="ntfWeather">Weather</b><p id="ntfWeatherP">Weather for tomorrow, every morning.</p></div><button class="switch" id="swNtfWeather" aria-label="Weather"></button></div>
+        </div>
+        <div class="card">
+          <div class="srow tap" onclick="toggleNtf('sound')"><div class="grow"><b id="ntfSound">Sound</b><p id="ntfSoundP">Play a sound with the message.</p></div><button class="switch" id="swNtfSound" aria-label="Sound"></button></div>
+          <div class="srow tap" onclick="toggleNtf('quiet')"><div class="grow"><b id="ntfQuiet">Quiet at night</b><p id="ntfQuietP">No messages from 10 at night to 6 in the morning, except the alarm.</p></div><button class="switch" id="swNtfQuiet" aria-label="Quiet at night"></button></div>
+        </div>
+      </div></div>
+
+      <div class="set-pane" id="setPane-other" style="display:none"><div class="set-pane-inner">
+        <h3 id="otherTitle">Your wEKIL</h3>
+        <p class="set-note" id="otherText">This section is not in wEKIL yet. wEKIL will charge a monthly fee when it works for real — for now, while it is a test, it is free.</p>
+        <div class="card" id="privacyCard" style="display:none">
+          <div class="srow"><div class="grow"><b id="setStop">Money apps are in test mode</b><p id="setStopP">Telebirr and CBE can be tried on the payment screen. No money is sent in this version.</p></div><button class="switch locked" aria-label="Locked on"></button></div>
+          <div class="srow"><div class="grow"><b id="setPin">Never type my PIN</b><p id="setPinP">Always ON. Locked — this cannot be turned off.</p></div><button class="switch locked" aria-label="Locked on"></button></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+
+  <!-- Search dialog -->
+  <div class="cdlg-backdrop" id="searchBackdrop" onclick="closeSearch()"></div>
+  <div class="cdlg" id="searchDialog" role="dialog" aria-label="Search">
+    <div class="sdlg-head">
+      <input id="searchInput" placeholder="Search" oninput="filterSearch(this.value)">
+      <button class="icon-btn" onclick="closeSearch()" aria-label="Close">✕</button>
+    </div>
+    <div class="sdlg-tabs" id="searchTabs">
+      <button class="stab active" data-tab="all" onclick="setSearchTab('all',this)"><span id="schAll">All</span></button>
+      <button class="stab" data-tab="chats" onclick="setSearchTab('chats',this)"><span id="schChats">Chats</span></button>
+      <button class="stab" data-tab="artifacts" onclick="setSearchTab('artifacts',this)"><span id="schArtifacts">Artifacts</span></button>
+      <button class="stab" data-tab="actions" onclick="setSearchTab('actions',this)"><span id="schActions">Actions</span></button>
+    </div>
+    <div class="sdlg-body" id="searchBody"></div>
+    <div class="sdlg-foot"><span><span id="schClose">Close</span> <kbd>Esc</kbd></span><span><span id="schFilters">Filters</span> <kbd>/</kbd></span></div>
+  </div>
+
+  <!-- Language picker (only 4 languages) -->
+  <div class="cdlg-backdrop" id="langBackdrop" onclick="closeLanguage()"></div>
+  <div class="cdlg" id="langDialog" role="dialog" aria-label="Choose your language">
+    <div class="sdlg-head"><h3 id="langTitle">Choose your language</h3><button class="icon-btn" onclick="closeLanguage()" aria-label="Close">✕</button></div>
+    <div style="padding:4px 16px 10px"><input class="field-in" id="langSearch" placeholder="Search languages" oninput="filterLang(this.value)" style="margin:0"></div>
+    <div class="lang-grid" id="langGrid">
+      <button class="lang-cell" data-lang="am" onclick="pickLang('am')"><b>አማርኛ</b><span>Amharic</span><span class="check">✓</span></button>
+      <button class="lang-cell" data-lang="en" onclick="pickLang('en')"><b>English (United States)</b><span>English (United States)</span><span class="check">✓</span></button>
+      <button class="lang-cell" data-lang="om" onclick="pickLang('om')"><b>Afaan Oromoo</b><span>Oromia</span><span class="pill">Soon</span></button>
+      <button class="lang-cell" data-lang="ti" onclick="pickLang('ti')"><b>ትግርኛ</b><span>Tigray</span><span class="pill">Soon</span></button>
+    </div>
+  </div>
+
+  <!-- My Creations page -->
+  <div class="setdlg" id="artifactsDialog" role="dialog" aria-label="My Creations">
+    <div class="set-head"><h2 id="artTitle">Artifacts</h2><div class="spacer"></div><button class="icon-btn" onclick="closeArtifacts()" aria-label="Close">✕</button></div>
+    <div class="sdlg-tabs" style="border-bottom:1px solid var(--line)" id="artTabs">
+      <button class="stab active" data-tab="all" onclick="setArtTab('all',this)"><span id="artAll">All</span></button>
+      <button class="stab" data-tab="yours" onclick="setArtTab('yours',this)"><span id="artYours">Yours</span></button>
+      <button class="stab" data-tab="shared" onclick="setArtTab('shared',this)"><span id="artShared">Shared with you</span></button>
+    </div>
+    <div class="art-tools">
+      <input id="artSearch" placeholder="Search artifacts" oninput="filterArtifacts(this.value)">
+      <button class="mini-btn" id="artViewBtn" onclick="toggleArtView()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg> List</button>
+      <button class="mini-btn" onclick="document.getElementById('mkSection').scrollIntoView({behavior:'smooth'})" aria-label="Make something new"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg></button>
+    </div>
+    <div class="art-body">
+      <div id="todayCard"></div>
+      <div class="art-sec" id="mkSection"><span id="artMakeNew">Make something new</span></div>
+      <div class="mk-grid">
+        <button class="mk-card" onclick="makeNew('docs')"><span class="mk-tile blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span><span class="lb" id="artDocs">Docs</span></button>
+        <button class="mk-card" onclick="makeNew('slides')"><span class="mk-tile brown"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></span><span class="lb" id="artSlides">Slides</span></button>
+        <button class="mk-card" onclick="makeNew('design')"><span class="mk-tile purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></span><span class="lb" id="artDesign">Design</span></button>
+      </div>
+      <div class="art-grid" id="artGrid"></div>
+      <div class="art-empty" id="artEmpty" style="display:none"><span id="artEmptyTx">Nothing shared with you yet.</span></div>
+    </div>
+  </div>
+
+  <!-- Artifact detail sheet -->
+  <!-- Creation editor sheet -->
+  <div class="sheet" id="sheet-creation">
+    <div class="grab"></div>
+    <h2 id="crTitle">Document</h2>
+    <label class="cr-label" id="crTitleLabel" for="crTitleInput">Title</label>
+    <input class="cr-input" id="crTitleInput" type="text">
+    <label class="cr-label" id="crContentLabel" for="crContentInput">Content</label>
+    <textarea class="cr-area" id="crContentInput" rows="6"></textarea>
+    <button class="big-btn" id="crSaveBtn" onclick="saveCreationEditor()">Save</button>
+    <button class="close-btn danger" id="crDeleteBtn" onclick="deleteCreationEditor()">Delete</button>
+    <button class="close-btn" onclick="closeSheets()" data-close>Close</button>
+  </div>
+
+  <!-- Confirmation before an action -->
+  <div class="sheet" id="sheet-confirm">
+    <div class="grab"></div>
+    <h2 id="cfTitle">Confirm</h2>
+    <div class="cr-label" id="cfWhatLabel">What it will do</div>
+    <div class="cf-val" id="cfWhat"></div>
+    <div class="cr-label" id="cfWhoLabel">Who it affects</div>
+    <div class="cf-val" id="cfWho"></div>
+    <div class="cr-label" id="cfMoneyLabel">Money</div>
+    <div class="cf-val" id="cfMoney"></div>
+    <button class="big-btn" id="cfYesBtn" onclick="confirmYes()">Yes, do it</button>
+    <button class="close-btn" id="cfNoBtn" onclick="confirmNo()">No, cancel</button>
+  </div>
+
+  <!-- Restore: items that already exist -->
+  <div class="sheet" id="sheet-restore">
+    <div class="grab"></div>
+    <h2 id="rsTitle">Already on this phone</h2>
+    <p class="sub" id="rsSub">These items are already on this phone. Replace them with the versions from the backup, or keep yours?</p>
+    <div id="rsList"></div>
+    <button class="big-btn" id="rsReplaceBtn" onclick="restoreReplace()">Replace with backup</button>
+    <button class="close-btn" id="rsKeepBtn" onclick="restoreKeep()">Keep mine</button>
+  </div>
+
+  <!-- Send feedback -->
+  <div class="sheet" id="sheet-feedback">
+    <div class="grab"></div>
+    <h2 id="fbTitle">Send feedback</h2>
+    <textarea class="cr-area" id="fbText" rows="4" maxlength="300" placeholder="Write your feedback here..." oninput="updateFbCount()"></textarea>
+    <div class="fb-count" id="fbCount">0 / 300</div>
+    <button class="big-btn" id="fbSendBtn" onclick="sendFeedback()">Send</button>
+    <button class="close-btn" id="fbShowBtn" onclick="toggleFeedbackList()">Show my feedback</button>
+    <div id="fbList" style="display:none"></div>
+  </div>
+
+  <!-- First-run guide -->
+  <div class="intro" id="introOverlay" role="dialog" aria-label="wEKIL guide">
+    <div class="intro-card">
+      <div class="intro-logo"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 12 4-10 4 10 4-12"/></svg></div>
+      <h2 id="introTitle">wEKIL does your work. Tell it what you need.</h2>
+      <p class="intro-ex" id="introEx">“Remind me to pay rent on Friday.”</p>
+      <div class="intro-dots" id="introDots"><i class="on"></i><i></i><i></i></div>
+      <div class="intro-btns">
+        <button class="big-btn" id="introNextBtn" onclick="introNext()">Next</button>
+        <button class="close-btn" id="introSkipBtn" onclick="introSkip()">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plans page (Monthly fee) -->
+  <div class="setdlg" id="plansDialog" role="dialog" aria-label="Monthly fee">
+    <div class="set-head"><h2 id="plansTitle">Plans that grow with you</h2><div class="spacer"></div><button class="icon-btn" onclick="closePlans()" aria-label="Close">✕</button></div>
+    <div class="plans-body">
+      <p class="plans-sub" id="plansSub">wEKIL does your work for you, so it is not free forever. Free while it is a test.</p>
+      <div class="plans-grid" id="plansGrid"></div>
+    </div>
+  </div>
+
+  <!-- Payment screen -->
+  <div class="setdlg" id="payDialog" role="dialog" aria-label="Pay">
+    <div class="set-head"><h2 id="payTitle">Pay</h2><div class="spacer"></div><button class="icon-btn" onclick="closePay()" aria-label="Close">✕</button></div>
+    <div class="pay-body">
+      <div class="pay-brand">
+        <div class="pay-logo"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 12 4-10 4 10 4-12"/></svg></div>
+        <div class="pay-name">wEKIL</div>
+        <div class="pay-plan" id="payPlan">Monthly Fee</div>
+        <div class="pay-price" id="payPrice">100 birr <small>/ month</small></div>
+      </div>
+      <div class="pay-methods">
+        <button class="pay-method active" id="payMTelebirr" onclick="setPayMethod('telebirr')">Telebirr</button>
+        <button class="pay-method" id="payMCBE" onclick="setPayMethod('cbe')">CBE</button>
+      </div>
+      <label class="cr-label" id="payNumLabel" for="payNumInput">Phone number</label>
+      <input class="cr-input" id="payNumInput" type="text" inputmode="numeric" placeholder="09XXXXXXXX" maxlength="10" oninput="payNumInput()" onblur="payNumBlur()">
+      <div class="pay-count" id="payNumCount">0 / 10</div>
+      <div class="pay-err" id="payNumErr" style="display:none"></div>
+      <button class="big-btn" id="payBtn" onclick="payNow()">Pay</button>
+      <p class="pay-soon" id="paySoon">Coming soon.</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Saved ✓</div>
+</div>
+
+<script>
+  const ICON_MOON = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.2A8.2 8.2 0 1 1 10.8 4a6.6 6.6 0 0 0 9.2 9.2z"/></svg>';
+  const ICON_SUN = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5 5l1.6 1.6M17.4 17.4L19 19M19 5l-1.6 1.6M6.6 17.4L5 19"/></svg>';
+  let lang = localStorage.getItem('wekil_lang') || 'en';
+  let dark = localStorage.getItem('wekil_theme') !== 'light';
+  let largeText = localStorage.getItem('wekil_text') === 'large';
+  let voice = localStorage.getItem('wekil_voice') === 'on';
+
+  const LOGO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 12 4-10 4 10 4-12"/></svg>';
+  const T = {
+    en:{ welcome:'I am wEKIL. Tell me what you want, and I will do it for you.',
+         mProfile:'My profile', mSettings:'Settings', mDark:'Dark mode', mLang:'Language', mAbout:'About wEKIL',
+         pmSettings:'Settings', pmLang:'Language', pmHelp:'Get help', pmLearn:'Learn more', pmPricing:'Monthly fee', lmAbout:'About wEKIL', lmUsage:'Usage Policy', lmPrivacy:'Privacy Policy', lmTerms:'Terms of Service', usageSoon:'Usage Policy is not in wEKIL yet.', privacySoon:'Privacy Policy is not in wEKIL yet.', termsSoon:'Terms of Service is not in wEKIL yet.',
+         placeholder:'How can I help you today?', send:'Do it', hint:'wEKIL can make mistakes, so double check responses.',
+         sTitle:'Settings', sSub:'Make wEKIL yours. Everything is saved on this device.',
+         spProfile:'Profile', spPhotoHint:'Profile photo', spFullName:'Full name', spCallYou:'What should wEKIL call you?', spWork:'What best describes your work?', spPlan:'Plan', spPlanVal:'Free for now', spModel:'Model', spModelVal:'No brain yet.', spSave:'Save profile', spData:'Data', spBackup:'Back up my data', spRestore:'Restore from backup', spBrain:'AI Brain', spBrainP:'Free Google Gemini. Your key stays only on this phone.', spKeyHow:'Get a free key: Google AI Studio → Get API key. No card needed.', spKeyLabel:'Google Gemini key', spKeyPh:'Paste your free Gemini key here', spKeySave:'Save key', spKeyRemove:'Remove key', spKeyTest:'Test', spKeySaved:'Key saved. Gemini is ready.', spKeyRemoved:'Key removed.', spKeyEmpty:'Paste your key first.', spKeyNoKey:'No key yet. Add a free Google key to chat with a real brain.', spKeyNeed:'Add your free Gemini key in Settings → Account first.', spNoKeyChat:'Add your Gemini key first: Settings → Account → AI Brain.', spErr400:'The key or request format is wrong.', spErr403:'This key is not allowed. Check it in Google AI Studio', spErr404:'The model is not available.', spErr429:'Too many requests. Wait a minute and try again', spErrNet:'The browser blocked the call.', spErrOther:'Something went wrong at Google. Try again.', spErrEmpty:'Gemini gave no usable answer. Try again.', spTestRun:'Testing…', spTestOkModel:'Connected. Model: {model}.', spModelGemini:'Google Gemini (free, internet)', spModelNone:'No brain yet.', apTitle:'Appearance', lgTitle:'Language',
+         setDark:'Dark mode', setDarkP:'Easy on the eyes at night.', setLang:'Language', setText:'Large text', setTextP:'Bigger words everywhere.',
+         setVoice:'Voice answers', setVoiceP:'wEKIL speaks its answers out loud.', voiceOn:'Voice answers on. I will speak my answers.', voiceNope:'Voice is not available on this device.', ntfTitle:'Notifications', ntfRemind:'Reminders', ntfRemindP:'wEKIL tells you when the time comes.', ntfAppt:'Appointments', ntfApptP:'A message 30 minutes before.', ntfAlarm:'Alarm', ntfAlarmP:'The wake-up alarm rings.', ntfBirthday:'Family birthdays', ntfBirthdayP:'A message when a family birthday is near.', ntfWeather:'Weather', ntfWeatherP:'Weather for tomorrow, every morning.', ntfSound:'Sound', ntfSoundP:'Play a sound with the message.', ntfQuiet:'Quiet at night', ntfQuietP:'No messages from 10 at night to 6 in the morning, except the alarm.',
+         setStop:'Money apps are in test mode', setStopP:'Telebirr and CBE can be tried on the payment screen. No money is sent in this version.',
+         setPin:'Never type my PIN', setPinP:'Always ON. Locked — this cannot be turned off.',
+         pNameLabel:'Your name', pNameHint:'Used so wEKIL knows who it works for.', pPlan:'Plan', pPlanVal:'Free for now.', pSave:'Save profile',
+         aTitle:'About wEKIL', aText:'wEKIL (ወኪል) means "the one who acts for you." It is an AI agent for Ethiopia: you speak, it sees your phone screen, decides the next tap, and does it — using free Google Gemini, with no Visa, no USD, and nothing to pay. Your key stays only on your phone. Version 0.8 · Chat with wEKIL like a friend, and ask it to do phone tasks — first version controls normal screens only; telebirr and CBE are left for a later phase.',
+         close:'Close', saved:'Saved ✓', emptyName:'Please type your name first.',
+         searchSoon:'Search is not in this test version yet.', addSoon:'Adding files is not in this test version yet.',
+         mArtifacts:'My Creations', mFeedback:'Send feedback', schAll:'All', schChats:'Chats', schArtifacts:'Creations', schActions:'Actions', schRecents:'Recents', schActionsSec:'Actions', schClose:'Close', schFilters:'Filters', noResults:'No results for',
+         artTitle:'My Creations', artAll:'All', artYours:'Yours', artShared:'Shared with you', artMakeNew:'Make something new', artDocs:'Docs', artSlides:'Slides', artDesign:'Design', artEmptyTx:'Nothing shared with you yet.', previewSale:'Preview only. This payment is not recorded yet. Open the wEKIL app to record it for real.', previewReminder:'Preview only. This reminder is not set yet. Open the wEKIL app to set it for real.', previewDebt:'Preview only. This debt is not recorded yet. Open the wEKIL app to record it for real.', previewAppointment:'Preview only. This appointment is not set yet. Open the wEKIL app to set it for real.', previewAlarm:'Preview only. This alarm is not set yet. Open the wEKIL app to set it for real.', savedIn:'Preview — not saved to your phone', openCreation:'Open', untitledDoc:'Untitled Doc', untitledSlides:'Untitled Slides', untitledDesign:'Untitled Design', kindDoc:'Document', kindSlides:'Slides', kindDesign:'Design', kindSale:'Money record', kindReminder:'Reminder', kindDebt:'Person debt', kindAppointment:'Appointment', crTitleLabel:'Title', crContentLabel:'Content', crSave:'Save', deleteBtn:'Delete', deleted:'Deleted', tapDelete:'Tap again to delete', artEmptyMine:'No creations yet.', noChats:'No chats yet.', deleteChat:'Delete chat',
+         todayTitle:'Today', todaySales:'Payments today', todayNoAmount:'Payments with no amount', todayOweCount:'People who owe money', todayOweTotal:'Total they owe', todayTopDebts:'Largest debts', todayNoDebts:'No one owes money.', birr:'birr',
+         docsNewSoon:'Docs are not in wEKIL yet.', slidesNewSoon:'Slides are not in wEKIL yet.', designNewSoon:'Design is not in wEKIL yet.', notYet:'Not in wEKIL yet.',
+         langTitle:'Choose your language', langSearchPh:'Search languages', setChooseLang:'Choose language', setChooseLangP:'English, አማርኛ, Afaan Oromoo, ትግርኛ', plansTitle:'Plans that grow with you', plansSub:'wEKIL does your work for you, so it is not free forever. Free while it is a test.',
+         planFreeName:'Free for now', planFreeSub:'Try wEKIL', priceFree:'0 birr', perMonth:'month', perYear:'year', planFreeBtn:'Use wEKIL for free',
+         planFreeF1:'Chat with wEKIL on your phone', planFreeF2:'Try reminders and money records', planFreeF3:'Calculate profit and costs', planFreeF4:'Free while wEKIL is a test version',
+         planMonthName:'Monthly Fee', planMonthSub:'wEKIL works for you every day', priceMonth:'100 birr', planMonthBtn:'Get Monthly Fee', planMonthNote:'No commitment · Cancel anytime', mostPopular:'Most popular',
+         planMonthF0:'Everything in Free, and:', planMonthF1:'wEKIL acts on your phone screen for you', planMonthF2:'Unlimited reminders and money records', planMonthF3:'Reminds people who do business about people who did not pay', planMonthF4:'Help with appointments and plans',
+         planYearName:'Yearly', planYearSub:'Pay once a year', priceYear:'1,000 birr', planYearBtn:'Get Yearly plan', planYearNote:'Save 200 birr a year',
+         planYearF0:'Everything in Monthly Fee, and:', planYearF1:'Pay once, no monthly payment', planYearF2:'No monthly payment to remember', planYearF3:'Use wEKIL all year',
+         paySoon:'Coming soon.',
+         freeToast:'You are on Free for now — enjoy wEKIL!', planFreeChosen:'Free for now', sideProfileSubFree:'Free for now · Google Gemini',
+         payTitle:'Pay',
+         payTelebirr:'Telebirr', payCBE:'CBE', payPhoneLabel:'Phone number', payAccountLabel:'Account Number', payPhonePh:'09XXXXXXXX', payAccountPh:'XXXXXXXXXXXXX', payErrorPhone:'enter 10 valid phone numbers', payErrorAccount:'enter 13 valid account', payNotConnected:'Payment is not connected yet. This is a test. No money moves.', payBtn:'Pay',
+         omSoon:'Afaan Oromoo is coming soon — wEKIL speaks English and Amharic for now.', tiSoon:'Tigrinya is coming soon — wEKIL speaks English and Amharic for now.', searchPh:'Search', artSearchPh:'Search creations',
+         pmUpload:'Upload or add files', pmShot:'Take a screenshot', pmSale:'Save a payment', pmRemind:'Set a reminder', pmDebt:'Add a person who owes me', pmWeb:'Web search', saleFill:'Save a payment: ', remindFill:'Remind me to ', debtFill:'Add a person who owes me: ',
+         shotSoon:'Screenshots work in the real wEKIL app on your phone. This web page cannot take one yet.', webSoon:'Web search is not in wEKIL yet.',
+         otherNote:'This section is not in wEKIL yet. wEKIL will charge a monthly fee when it works for real — for now, while it is a test, it is free.',
+         listening:'Listening…', heard:'Heard: ', stillWorking:'Still working. You can tap ■ to stop.',
+         confirmTitle:'Confirm', confirmWhat:'What it will do', confirmWho:'Who it affects', confirmMoney:'Money', confirmYes:'Yes, do it', confirmNo:'No, cancel', confirmSale:'Save a payment', confirmReminder:'Set a reminder', confirmDebt:'Add a person who owes me', confirmCustomer:'The person', confirmMe:'Me', noMoney:'No money involved', cancelled:'Cancelled.',
+         intro1:'wEKIL does your work. Tell it what you need.', intro1Ex:'“Remind me to pay rent on Friday.”', intro2:'It keeps records for you. Payments and who owes you money.', intro2Ex:'“Save a payment of 500 birr.”', intro3:'You stay in control. It asks before it spends money or sends a message.', introNext:'Next', introSkip:'Skip', introStart:'Start',
+         backupDone:'Backup saved.', restoreBad:'This is not a wEKIL backup file.', restoreNone:'Nothing new to restore.', restoreDone:'Backup restored.', restoreTitle:'Already on this phone', restoreSub:'These items are already on this phone. Replace them with the versions from the backup, or keep yours?', restoreReplace:'Replace with backup', restoreKeep:'Keep mine',
+         fbTitle:'Send feedback', fbPlaceholder:'Write your feedback here...', fbSend:'Send', fbSaved:"Saved. It will be sent when you're online.", fbShow:'Show my feedback', fbHide:'Hide my feedback', fbEmpty:'No feedback yet.', fbEmptyText:'Write something first.',
+         newChatLabel:'New chat', mSearch:'Search', sideMenuLabel:'Menu', sideChatsLabel:'Chats and tasks',
+         planFree:'Free for now', planLocal:'Google Gemini', sideProfileSub:'Free for now · Google Gemini',
+         navAccount:'Account', navAppearance:'Appearance', navLanguage:'Language', navAbout:'About wEKIL',
+         navYourWekil:'Your wEKIL', navNotifications:'Notifications',
+         navPrivacy:'Privacy',
+         lgNote:'Tap EN to switch to አማርኛ, and tap again to switch back.', setSearchPh:'Search',
+         workOpts:['Not set','Student','Developer','Own a business','Business owner'],
+         demo:'PREVIEW ONLY — this page alone has no brain. Open the wEKIL app to run it for real.',
+         plan:(g)=>`Goal received: "${g}"\n\nMy loop would be:\n1. See — screenshot of your phone\n2. Think — Gemini decides the next tap\n3. Tap — do it, then look again\n...until the goal is done. If a protected screen comes, I stop.` },
+    am:{ welcome:'እኔ ወኪል ነኝ። የሚፈልጉትን ንገሩኝ፣ እኔ አደርግልዎታለሁ።',
+         mProfile:'የእኔ መገለጫ', mSettings:'ቅንብሮች', mDark:'ጨለማ ሁነታ', mLang:'ቋንቋ', mAbout:'ስለ ወኪል',
+         pmSettings:'ቅንብሮች', pmLang:'ቋንቋ', pmHelp:'እርዳታ አግኝ', pmLearn:'ተጨማሪ እወቅ', pmPricing:'ወርሃዊ ክፍያ', lmAbout:'ስለ ወኪል', lmUsage:'የአጠቃቀም ፖሊሲ', lmPrivacy:'የግላዊነት ፖሊሲ', lmTerms:'የአገልግሎት ውሎች', usageSoon:'የአጠቃቀም ፖሊሲ ገና በወኪል ውስጥ የለም።', privacySoon:'የግላዊነት ፖሊሲ ገና በወኪል ውስጥ የለም።', termsSoon:'የአገልግሎት ውሎች ገና በወኪል ውስጥ የለም።',
+         placeholder:'ዛሬ ምን ላድርግልህ?', send:'አድርግ', hint:'wEKIL ስህተት ሊሰራ ይችላል፣ ስለዚህ መልሶችን እንደገና አረጋግጥ።',
+         sTitle:'ቅንብሮች', sSub:'ወኪልን ለአንተ አድርገው። ሁሉም በዚህ መሳሪያ ላይ ይቀመጣል።',
+         spProfile:'መገለጫ', spPhotoHint:'የመገለጫ ፎቶ', spFullName:'ሙሉ ስም', spCallYou:'ወኪል ምን ብሎ ይጥራህ?', spWork:'ስራህን ምን ይገልጻል?', spPlan:'እቅድ', spPlanVal:'ለአሁን ነፃ', spModel:'ሞዴል', spModelVal:'እስካሁን አንጎል የለም።', spSave:'መገለጫ አስቀምጥ', spData:'ውሂብ', spBackup:'ውሂቤን አስቀምጥ', spRestore:'ከመጠባበቂያ መልስ', spBrain:'የAI አንጎል', spBrainP:'ነፃ የጉግል ጄሚኒ። ቁልፉ በዚህ ስልክ ላይ ብቻ ይቀመጣል።', spKeyHow:'ነፃ ቁልፍ ለማግኘት፡ Google AI Studio → Get API key። ካርድ አያስፈልግም።', spKeyLabel:'የጉግል ጄሚኒ ቁልፍ', spKeyPh:'ነፃ የጄሚኒ ቁልፍህን እዚህ ለጥፍ', spKeySave:'ቁልፉን አስቀምጥ', spKeyRemove:'ቁልፉን አስወግድ', spKeyTest:'ሞክር', spKeySaved:'ቁልፉ ተቀምጧል። ጄሚኒ ዝግጁ ነው።', spKeyRemoved:'ቁልፉ ተወግዷል።', spKeyEmpty:'መጀመሪያ ቁልፍህን ለጥፍ።', spKeyNoKey:'እስካሁን ቁልፍ የለም። ከእውነተኛ አንጎል ጋር ለመወያየት ነፃ የጉግል ቁልፍ አክል።', spKeyNeed:'መጀመሪያ በቅንብሮች → መለያ ውስጥ ነፃ የጄሚኒ ቁልፍህን አክል።', spNoKeyChat:'መጀመሪያ የጄሚኒ ቁልፍህን አክል፡ ቅንብሮች → መለያ → የAI አንጎል።', spErr400:'ቁልፉ ወይም የጥሪው ቅርጽ ትክክል አይደለም።', spErr403:'ይህ ቁልፍ አይፈቀድም። በጉግል AI ስቱዲዮ ውስጥ አረጋግጥ።', spErr404:'ሞዴሉ አይገኝም።', spErr429:'ጥያቄዎች በጣም ብዙ ናቸው። አንድ ደቂቃ ጠብቅና እንደገና ሞክር።', spErrNet:'አሳሹ ጥሪውን አግዶታል።', spErrOther:'በጉግል በኩል አንድ ነገር ተበልሿል። እንደገና ሞክር።', spErrEmpty:'ጄሚኒ ጠቃሚ መልስ አልሰጠም። እንደገና ሞክር።', spTestRun:'በመሞከር ላይ…', spTestOkModel:'ተገናኝቷል። ሞዴል: {model}.', spModelGemini:'ጉግል ጄሚኒ (ነፃ፣ ኢንተርኔት)', spModelNone:'እስካሁን አንጎል የለም።', apTitle:'ገጽታ', lgTitle:'ቋንቋ',
+         setDark:'ጨለማ ሁነታ', setDarkP:'በሌሊት ለአይን ቀላል።', setLang:'ቋንቋ', setText:'ትልቅ ጽሑፍ', setTextP:'ትላልቅ ቃላት በሁሉም ቦታ።',
+         setVoice:'የድምጽ መልሶች', setVoiceP:'ወኪል መልሱን በድምጽ ይናገራል።', voiceOn:'የድምጽ መልሶች በርተዋል። መልሶቼን እናገራለሁ።', voiceNope:'ድምጽ በዚህ መሣሪያ ላይ አይገኝም።', ntfTitle:'ማሳወቂያዎች', ntfRemind:'ማስታወሻዎች', ntfRemindP:'ጊዜው ሲደርስ ወኪል ይነግርዎታል።', ntfAppt:'ቀጠሮዎች', ntfApptP:'ከ30 ደቂቃ በፊት መልእክት።', ntfAlarm:'ማንቂያ', ntfAlarmP:'የጠዋት ማንቂያ ይጮሃል።', ntfBirthday:'የቤተሰብ ልደት', ntfBirthdayP:'የቤተሰብ ልደት ሲቃረብ መልእክት።', ntfWeather:'የአየር ሁኔታ', ntfWeatherP:'የነገ የአየር ሁኔታ፣ በየጠዋቱ።', ntfSound:'ድምጽ', ntfSoundP:'ከመልእክቱ ጋር ድምጽ ያሰማ።', ntfQuiet:'በሌሊት ጸጥታ', ntfQuietP:'ከምሽት 4 ሰዓት እስከ ጠዋት 12 ሰዓት ምንም መልእክት የለም። ማንቂያው ግን ይጮሃል።',
+         setStop:'የገንዘብ መተግበሪያዎች በሙከራ ሁነታ ላይ ናቸው', setStopP:'ቴሌብር እና CBE በክፍያ ማያ ገጹ ላይ ሊሞከሩ ይችላሉ። በዚህ ስሪት ውስጥ ምንም ገንዘብ አይላክም።',
+         setPin:'ፒኔን ፈጽሞ አትጽፍ', setPinP:'ሁልጊዜ በርቷል። ተቆልፏል — ሊጠፋ አይችልም።',
+         pNameLabel:'ስምህ', pNameHint:'ወኪል ለማን እንደሚሰራ ያውቃል።', pPlan:'እቅድ', pPlanVal:'ለአሁን ነፃ።', pSave:'መገለጫ አስቀምጥ',
+         aTitle:'ስለ ወኪል', aText:'ወኪል ማለት "ለአንተ የሚሰራ" ማለት ነው። ለኢትዮጵያ የተሰራ AI ወኪል ነው፡ ትናገራለህ፣ የስልክህን ማያ ያያል፣ ቀጣዩን ንክኪ ይወስናል፣ ያደርገዋል — በነፃ የጉግል ጄሚኒ፣ ያለ ቪዛ፣ ያለ ዶላር፣ ያለ ክፍያ። ቁልፍህ በዚህ ስልክ ላይ ብቻ ይቀመጣል። ስሪት 0.8 · ከወኪል ጋር እንደ ጓደኛ ተወያይ፣ የስልክ ስራዎችንም ጠይቀው — የመጀመሪያ ስሪት ተራ ማያ ገጾችን ብቻ ይቆጣጠራል — ቴሌብር እና CBE ለኋላ ደረጃ ተተውተዋል።',
+         close:'ዝጋ', saved:'ተቀምጧል ✓', emptyName:'እባክህ ስምህን መጀመሪያ ጻፍ።',
+         searchSoon:'ፍለጋ በዚህ የሙከራ ስሪት ውስጥ ገና የለም።', addSoon:'ፋይል ማያያዝ በዚህ የሙከራ ስሪት ውስጥ ገና የለም።',
+         mArtifacts:'ስራዎቼ', mFeedback:'አስተያየት ላክ', schAll:'ሁሉም', schChats:'ውይይቶች', schArtifacts:'ስራዎች', schActions:'እርምጃዎች', schRecents:'የቅርብ ጊዜ', schActionsSec:'እርምጃዎች', schClose:'ዝጋ', schFilters:'ማጣሪያዎች', noResults:'ምንም ውጤት የለም ለ',
+         artTitle:'ስራዎቼ', artAll:'ሁሉም', artYours:'የእርስዎ', artShared:'ከእርስዎ ጋር የተጋሩ', artMakeNew:'አዲስ ነገር ስራ', artDocs:'ሰነዶች', artSlides:'ስላይዶች', artDesign:'ዲዛይን', artEmptyTx:'እስካሁን ከእርስዎ ጋር የተጋራ ነገር የለም።', previewSale:'ቅድመ እይታ ብቻ ነው። ይህ ክፍያ ገና አልተመዘገበም። በእውነት ለመመዝገብ የወኪል መተግበሪያውን ክፈት።', previewReminder:'ቅድመ እይታ ብቻ ነው። ይህ ማስታወሻ ገና አልተዘጋጀም። በእውነት ለማዘጋጀት የወኪል መተግበሪያውን ክፈት።', previewDebt:'ቅድመ እይታ ብቻ ነው። ይህ እዳ ገና አልተመዘገበም። በእውነት ለመመዝገብ የወኪል መተግበሪያውን ክፈት።', previewAppointment:'ቅድመ እይታ ብቻ ነው። ይህ ቀጠሮ ገና አልተዘጋጀም። በእውነት ለማዘጋጀት የወኪል መተግበሪያውን ክፈት።', previewAlarm:'ቅድመ እይታ ብቻ ነው። ይህ ማንቂያ ገና አልተዘጋጀም። በእውነት ለማዘጋጀት የወኪል መተግበሪያውን ክፈት።', savedIn:'ቅድመ እይታ — በስልክህ ላይ አልተቀመጠም', openCreation:'ክፈት', untitledDoc:'ስም የሌለው ሰነድ', untitledSlides:'ስም የሌለው ስላይድ', untitledDesign:'ስም የሌለው ዲዛይን', kindDoc:'ሰነድ', kindSlides:'ስላይድ', kindDesign:'ዲዛይን', kindSale:'የገንዘብ መዝገብ', kindReminder:'ማስታወሻ', kindDebt:'የሰው እዳ', kindAppointment:'ቀጠሮ', crTitleLabel:'ርዕስ', crContentLabel:'ይዘት', crSave:'አስቀምጥ', deleteBtn:'ሰርዝ', deleted:'ተሰርዟል', tapDelete:'ለመሰረዝ እንደገና መታ', artEmptyMine:'እስካሁን ምንም ስራ የለም።', noChats:'እስካሁን ምንም ውይይት የለም።', deleteChat:'ውይይቱን ሰርዝ',
+         todayTitle:'ዛሬ', todaySales:'የዛሬ ክፍያ', todayNoAmount:'መጠን የሌላቸው ክፍያዎች', todayOweCount:'ገንዘብ ያለባቸው ሰዎች', todayOweTotal:'ጠቅላላ እዳ', todayTopDebts:'ትልልቅ እዳዎች', todayNoDebts:'ምንም እዳ የለም።', birr:'ብር',
+         docsNewSoon:'ሰነዶች ገና በወኪል ውስጥ የሉም።', slidesNewSoon:'ስላይዶች ገና በወኪል ውስጥ የሉም።', designNewSoon:'ዲዛይን ገና በወኪል ውስጥ የለም።', notYet:'ገና በወኪል ውስጥ የለም።',
+         langTitle:'ቋንቋህን ምረጥ', langSearchPh:'ቋንቋዎችን ፈልግ', setChooseLang:'ቋንቋ ምረጥ', setChooseLangP:'English, አማርኛ, Afaan Oromoo, ትግርኛ', plansTitle:'ከአንተ ጋር የሚያድጉ እቅዶች', plansSub:'ወኪል ስራህን ስለሚሰራልህ ለዘላለም ነፃ አይደለም። የሙከራ ስሪት እያለ ነፃ ነው።',
+         planFreeName:'ለአሁን ነፃ', planFreeSub:'ወኪልን ሞክር', priceFree:'0 ብር', perMonth:'ወር', perYear:'ዓመት', planFreeBtn:'ወኪልን በነፃ ተጠቀም',
+         planFreeF1:'በስልክህ ከወኪል ጋር ተወያይ', planFreeF2:'ማስታወሻዎችን እና የገንዘብ መዝገቦችን ሞክር', planFreeF3:'ትርፍ እና ወጪ አስላ', planFreeF4:'ወኪል የሙከራ ስሪት እያለ ነፃ ነው',
+         planMonthName:'ወርሃዊ ክፍያ', planMonthSub:'ወኪል በየቀኑ ለአንተ ይሰራል', priceMonth:'100 ብር', planMonthBtn:'ወርሃዊ ክፍያ አግኝ', planMonthNote:'ቁርጠኝነት የለም · በማንኛውም ጊዜ ሰርዝ', mostPopular:'በጣም ተወዳጅ',
+         planMonthF0:'በነፃ ውስጥ ያለው ሁሉ፣ እና፡', planMonthF1:'ወኪል በስልክህ ማያ ላይ ለአንተ ይሰራል', planMonthF2:'ያልተገደቡ ማስታወሻዎች እና የገንዘብ መዝገቦች', planMonthF3:'ንግድ የሚሰሩ ሰዎችን ያልከፈሉ ሰዎችን ያስታውሳል', planMonthF4:'ቀጠሮዎችን እና እቅዶችን ይረዳል',
+         planYearName:'ዓመታዊ', planYearSub:'በዓመት አንድ ጊዜ ክፈል', priceYear:'1,000 ብር', planYearBtn:'ዓመታዊ እቅድ አግኝ', planYearNote:'በአመት 200 ብር ይቆጥቡ',
+         planYearF0:'በወርሃዊ ክፍያ ውስጥ ያለው ሁሉ፣ እና፡', planYearF1:'አንድ ጊዜ ክፈል፣ ወርሃዊ ክፍያ የለም', planYearF2:'ለማስታወስ ወርሃዊ ክፍያ የለም', planYearF3:'ወኪልን ዓመቱን ሙሉ ተጠቀም',
+         paySoon:'በቅርቡ ይመጣል።',
+         freeToast:'ለአሁን ነፃ ላይ ነህ — ወኪልን ተጠቀም!', planFreeChosen:'ለአሁን ነፃ', sideProfileSubFree:'ለአሁን ነፃ · ጉግል ጄሚኒ',
+         payTitle:'ክፈል',
+         payTelebirr:'Telebirr', payCBE:'CBE', payPhoneLabel:'የስልክ ቁጥር', payAccountLabel:'የአካውንት ቁጥር', payPhonePh:'09XXXXXXXX', payAccountPh:'XXXXXXXXXXXXX', payErrorPhone:'10 ትክክለኛ የስልክ ቁጥሮች አስገባ', payErrorAccount:'13 ትክክለኛ የአካውንት ቁጥር አስገባ', payNotConnected:'ክፍያው ገና አልተገናኘም። ይህ ሙከራ ነው። ምንም ገንዘብ አይንቀሳቀስም።', payBtn:'ክፈል',
+         omSoon:'አፋን ኦሮሞ በቅርቡ ይመጣል — ወኪል አሁን እንግሊዝኛ እና አማርኛ ብቻ ይናገራል።', tiSoon:'ትግርኛ በቅርቡ ይመጣል — ወኪል አሁን እንግሊዝኛ እና አማርኛ ብቻ ይናገራል።', searchPh:'ፈልግ', artSearchPh:'ስራዎቼን ፈልግ',
+         pmUpload:'ፋይል ጫን ወይም አክል', pmShot:'የማያ ገጽ ምስል አንሳ', pmSale:'ክፍያ አስቀምጥ', pmRemind:'ማስታወሻ አስቀምጥ', pmDebt:'እዳ ያለበት ሰው አክል', pmWeb:'የድር ፍለጋ', saleFill:'ክፍያ አስቀምጥ፡ ', remindFill:'አስታውሰኝ፡ ', debtFill:'እዳ ያለበት ሰው አክል፡ ',
+         shotSoon:'ቅጽበት የሚሰራው በእውነተኛው የወኪል መተግበሪያ ላይ ነው። ይህ ድረ-ገጽ ማንሳት አይችልም።', webSoon:'የድር ፍለጋ ገና በወኪል ውስጥ የለም።',
+         otherNote:'ይህ ክፍል በወኪል ውስጥ ገና የለም። ወኪል በእውነት ሲሰራ ወርሃዊ ክፍያ ይጠይቃል — አሁን፣ ሙከራ እያለ ነፃ ነው።',
+         listening:'እያዳመጥኩ ነው…', heard:'ሰማሁት፡ ', stillWorking:'እስካሁን እየሰራሁ ነው። ለማቆም ■ ን መታ።',
+         confirmTitle:'አረጋግጥ', confirmWhat:'ምን እንደሚያደርግ', confirmWho:'ማን እንደሚነካ', confirmMoney:'ገንዘብ', confirmYes:'አዎ፣ አድርገው', confirmNo:'አይ፣ ተወው', confirmSale:'ክፍያ አስቀምጥ', confirmReminder:'ማስታወሻ አዘጋጅ', confirmDebt:'እዳ ያለበት ሰው አክል', confirmCustomer:'ሰውየው', confirmMe:'እኔ', noMoney:'ገንዘብ የለም', cancelled:'ተሰርዟል።',
+         intro1:'ወኪል ስራዎን ያደርግልዎታል። የሚፈልጉትን ንገሩት።', intro1Ex:'“አርብ የቤት ኪራይ መክፈል እንዳለብኝ አስታውሰኝ።”', intro2:'መዝገቦችዎን ይይዝልዎታል። ክፍያ እና እዳ ያለባቸው ሰዎች።', intro2Ex:'“የ500 ብር ክፍያ አስቀምጥ።”', intro3:'ቁጥጥሩ በእጅዎ ነው። ገንዘብ ከማውጣቱ ወይም መልእክት ከመላኩ በፊት ይጠይቅዎታል።', introNext:'ቀጣይ', introSkip:'ዝለል', introStart:'ጀምር',
+         backupDone:'መጠባበቂያው ተቀምጧል።', restoreBad:'ይህ የወኪል መጠባበቂያ ፋይል አይደለም።', restoreNone:'ለመመለስ ምንም አዲስ ነገር የለም።', restoreDone:'መጠባበቂያው ተመልሷል።', restoreTitle:'በዚህ ስልክ ላይ አሉ', restoreSub:'እነዚህ ነገሮች በዚህ ስልክ ላይ አሉ። በመጠባበቂያው ስሪቶች መተካት ወይም የእርስዎን ማቆየት ይችላሉ።', restoreReplace:'በመጠባበቂያው ተካ', restoreKeep:'የእኔን አቆይ',
+         fbTitle:'አስተያየት ላክ', fbPlaceholder:'አስተያየትዎን እዚህ ይጻፉ...', fbSend:'ላክ', fbSaved:'ተቀምጧል። ኢንተርኔት ሲኖር ይላካል።', fbShow:'አስተያየቴን አሳይ', fbHide:'አስተያየቴን ደብቅ', fbEmpty:'እስካሁን ምንም አስተያየት የለም።', fbEmptyText:'መጀመሪያ አንድ ነገር ይጻፉ።',
+         newChatLabel:'አዲስ ውይይት', mSearch:'ፍለጋ', sideMenuLabel:'ምናሌ', sideChatsLabel:'ውይይቶች እና ስራዎች',
+         planFree:'ለአሁን ነፃ', planLocal:'ጉግል ጄሚኒ', sideProfileSub:'ለአሁን ነፃ · ጉግል ጄሚኒ',
+         navAccount:'መለያ', navAppearance:'ገጽታ', navLanguage:'ቋንቋ', navAbout:'ስለ ወኪል',
+         navYourWekil:'ወኪልህ', navNotifications:'ማሳወቂያዎች',
+         navPrivacy:'ግላዊነት',
+         lgNote:'EN ን ንካ ወደ አማርኛ ለመቀየር፤ እንደገና ንካ ወደ እንግሊዝኛ ለመመለስ።', setSearchPh:'ፍለጋ',
+         workOpts:['አልተቀመጠም','ተማሪ','ገንቢ','ንግድ አለኝ','የንግድ ባለቤት'],
+         demo:'ቅድመ-እይታ ብቻ — ይህ ገጽ ብቻውን አንጎል የለውም። ለእውነተኛ ስራ የወኪል መተግበሪያን ክፈት።',
+         plan:(g)=>`ግቡ ደርሷል፡ "${g}"\n\nዑደቴ ይህ ይሆናል፡\n1. እይ — የስልክህን ማያ ፎቶ\n2. አስብ — ጄሚኒ ቀጣዩን ንክኪ ይወስናል\n3. ንካ — አድርጌ እንደገና እያለሁ\n...ግቡ እስኪጠናቀቅ። የተጠበቀ ማያ መጣ እንደሆነ እቆማለሁ።` }
+  };
+  /* ---------- Premium icons (clean line SVGs, no emojis) ---------- */
+  const IC = {
+    search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+    info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+    folder:'<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
+    globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    card:'<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>',
+    clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+    receipt:'<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 7h8"/><path d="M8 11h8"/>',
+    calc:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M16 12h.01M12 12h.01M8 12h.01M16 16h.01M12 16h.01M8 16h.01"/>',
+    clip:'<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+    image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+    banknote:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4"/><path d="M8 23h8"/>',
+    doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    chart:'<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
+    pen:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+    drop:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+    users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',
+    menu:'<path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/>',
+    grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    list:'<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>'
+  };
+  function ic(n){ return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[n]||'')+'</svg>'; }
+  function setText(id, txt){ const el=document.getElementById(id); if(el) el.textContent = txt; }
+  function updateGreeting(){
+    const h = new Date().getHours();
+    const part = h < 12 ? 'Good morning' : (h < 18 ? 'Good afternoon' : 'Good evening');
+    const cn = localStorage.getItem('wekil_callname');
+    const name = (cn && cn.trim()) ? cn.trim() : (localStorage.getItem('wekil_name') || '').split(' ')[0];
+    const el = document.getElementById('greetTitle');
+    if(!el) return;
+    el.textContent = lang==='am' ? ('ሰላም' + (name ? ', ' + name : '')) : (part + (name ? ', ' + name : ''));
+  }
+  function applyLang(){
+    document.documentElement.lang = lang;
+    const t = T[lang];
+    ['welcomeText',
+     'mProfile','mSettings','mDark','mLang','mAbout','mArtifacts','mFeedback','pmSettings','pmLang','pmHelp','pmLearn','pmPricing','hintText','sTitle','sSub','setDark','setDarkP','setLang',
+     'setText','setTextP','setVoice','setVoiceP','setStop','setStopP','setPin','setPinP','pNameLabel','pNameHint',
+     'ntfTitle','ntfRemind','ntfRemindP','ntfAppt','ntfApptP','ntfAlarm','ntfAlarmP','ntfBirthday','ntfBirthdayP','ntfWeather','ntfWeatherP','ntfSound','ntfSoundP','ntfQuiet','ntfQuietP',
+     'pPlan','pPlanVal','pSave','aTitle','aText'].forEach(id=>setText(id, t[id==='welcomeText'?'welcome':id]));
+    setText('hintText', t.hint);
+    setText('pmLangLabel', lang==='en' ? 'English' : 'አማርኛ');
+    setText('lmAbout', t.lmAbout); setText('lmUsage', t.lmUsage); setText('lmPrivacy', t.lmPrivacy); setText('lmTerms', t.lmTerms);
+    document.getElementById('sendBtn').textContent = agentRunning ? '■' : '↑';
+    document.getElementById('goal').placeholder = t.placeholder;
+    document.getElementById('langPill2').textContent = lang==='en' ? 'EN' : 'አማ';
+    document.querySelectorAll('.chip').forEach(c=>{ const tx=c.querySelector('.chip-tx'); if(tx) tx.textContent = c.dataset[lang]; });
+    document.querySelectorAll('[data-close]').forEach(b=>b.textContent = t.close);
+    ['spProfile','spFullName','spCallYou','spWork','spPlan','spPlanVal','spModel','spModelVal','spSave','spData','spBackup','spRestore','apTitle','lgTitle'].forEach(id=>setText(id, t[id]));
+    ['spBrain','spBrainP','spKeyHow','spKeyLabel','spKeySave','spKeyRemove','spKeyTest'].forEach(id=>setText(id, t[id]));
+    updateBrainUI();
+    ['pmUpload','pmShot','pmSale','pmRemind','pmDebt','pmWeb'].forEach(id=>setText(id, t[id]));
+    ['schAll','schChats','schArtifacts','schActions','schClose','schFilters','artTitle','artAll','artYours','artShared','artMakeNew','artDocs','artSlides','artDesign','langTitle','setChooseLang','setChooseLangP'].forEach(id=>setText(id, t[id]));
+    setText('artEmptyTx', t.artEmptyTx);
+    setText('plansTitle', t.plansTitle); setText('plansSub', t.plansSub); setText('payTitle', t.payTitle); setText('paySoon', t.paySoon); setText('payBtn', t.payBtn); refreshPayForm(); renderPlans();
+    document.getElementById('searchInput').placeholder = t.searchPh || 'Search';
+    document.getElementById('langSearch').placeholder = t.langSearchPh;
+    document.getElementById('artSearch').placeholder = t.artSearchPh || 'Search artifacts';
+    renderSearch(); renderArtifacts(); updateLangChecks();
+    setText('abTitleD', t.aTitle); setText('abTextD', t.aText);
+    const ph=document.getElementById('spPhotoHint'); if(ph) ph.innerHTML = t.spPhotoHint.replace(/\n/g,'<br>');
+    ['newChatLabel','mSearch','sideMenuLabel','sideChatsLabel','planFree','planLocal','sideProfileSub',
+     'navAccount','navAppearance','navLanguage','navAbout','navYourWekil',
+     'navNotifications','navPrivacy','lgNote'].forEach(id=>setText(id, t[id]));
+    document.getElementById('setSearch').placeholder = t.setSearchPh;
+    const wkSel=document.getElementById('setWork');
+    if(wkSel){ const vals=['Not set','Student','Developer','Own a business','Business owner']; const cur=wkSel.value;
+      wkSel.querySelectorAll('option').forEach((o,i)=>{ o.textContent = t.workOpts[i]; o.value = vals[i]; }); wkSel.value = cur; }
+    const other=document.getElementById('setPane-other');
+    if(other && other.style.display!=='none'){ document.getElementById('otherText').textContent = t.otherNote; }
+    updateGreeting();
+    applyPlan();
+    renderChatList();
+  }
+
+  /* ---------- Search / Artifacts / Language picker ---------- */
+  const SEARCH_ITEMS = [
+    {type:'chats', icon:LOGO, title:'wEKIL — first chat', sub:'Chat', run:()=>{ closeSearch(); document.getElementById('goal').focus(); }},
+    {type:'actions', icon:ic('plus'), title:'New chat', sub:'Action', run:()=>{ closeSearch(); newChat(); }},
+    {type:'actions', icon:ic('folder'), title:'My Creations', sub:'Action', run:()=>{ closeSearch(); openArtifacts(); }},
+    {type:'actions', icon:ic('gear'), title:'Settings', sub:'Action', run:()=>{ closeSearch(); openSheet('settings'); }},
+    {type:'actions', icon:ic('user'), title:'My profile', sub:'Action', run:()=>{ closeSearch(); openSheet('profile'); }},
+    {type:'actions', icon:ic('globe'), title:'Choose language', sub:'Action', run:()=>{ closeSearch(); openLanguageDialog(); }},
+    {type:'actions', icon:ic('info'), title:'About wEKIL', sub:'Action', run:()=>{ closeSearch(); openSheet('about'); }}
+  ];
+  let searchTab='all', searchQuery='', artTab='all', artQuery='', artListView=false;
+  function openSearch(){
+    closeSidebar(); closeProfileMenu(); closePlusMenu();
+    document.getElementById('searchBackdrop').classList.add('open');
+    document.getElementById('searchDialog').classList.add('open');
+    document.getElementById('searchInput').value=''; searchQuery='';
+    renderSearch(); setTimeout(()=>document.getElementById('searchInput').focus(), 60);
+  }
+  function closeSearch(){ document.getElementById('searchBackdrop').classList.remove('open'); document.getElementById('searchDialog').classList.remove('open'); }
+  function setSearchTab(tab, btn){
+    searchTab=tab;
+    document.querySelectorAll('#searchTabs .stab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderSearch();
+  }
+  function filterSearch(q){ searchQuery=(q||'').toLowerCase(); renderSearch(); }
+  let searchAll=[];
+  function renderSearch(){
+    const body=document.getElementById('searchBody'); if(!body) return;
+    const q=searchQuery;
+    const match=(it)=>(searchTab==='all' || it.type===searchTab) && (!q || it.title.toLowerCase().includes(q));
+    const userItems=loadCreations().map(c=>({type:'artifacts', icon:ic(CREATION_ICONS[c.kind]||'doc'), title:c.title, sub:'Creation · '+c.date, run:()=>{ closeSearch(); openCreationEditor(c, c.kind); }}));
+    searchAll=SEARCH_ITEMS.concat(userItems);
+    const recents=searchAll.filter(it=>it.type!=='actions' && match(it));
+    const actions=searchAll.filter(it=>it.type==='actions' && match(it));
+    const t=T[lang];
+    body.innerHTML='';
+    const sec=(txt)=>{
+      const d=document.createElement('div');
+      d.className='sdlg-sec';
+      d.textContent=txt;
+      body.appendChild(d);
+    };
+    const row=(it)=>{
+      const btn=document.createElement('button');
+      btn.className='srow-item';
+      btn.onclick=()=>it.run();
+      const si=document.createElement('span');
+      si.className='si';
+      si.innerHTML=it.icon;
+      const gr=document.createElement('span');
+      gr.className='grow';
+      const b=document.createElement('b');
+      b.textContent=it.title;
+      const s=document.createElement('span');
+      s.textContent=it.sub;
+      gr.append(b, s);
+      const ch=document.createElement('span');
+      ch.className='chev';
+      ch.textContent='›';
+      btn.append(si, gr, ch);
+      body.appendChild(btn);
+    };
+    if(recents.length){ sec(t.schRecents||'Recents'); recents.forEach(row); }
+    if(actions.length){ sec(t.schActionsSec||'Actions'); actions.forEach(row); }
+    if(!recents.length && !actions.length){
+      const e=document.createElement('div');
+      e.className='sdlg-empty';
+      e.textContent=(t.noResults||'No results for')+' "'+searchQuery+'"';
+      body.appendChild(e);
+    }
+  }
+  function openArtifacts(){
+    closeSidebar(); closeProfileMenu(); closePlusMenu();
+    document.getElementById('artifactsDialog').classList.add('open');
+    renderArtifacts();
+  }
+  function closeArtifacts(){ document.getElementById('artifactsDialog').classList.remove('open'); }
+  function setArtTab(tab, btn){
+    artTab=tab;
+    document.querySelectorAll('#artTabs .stab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    renderArtifacts();
+  }
+  function filterArtifacts(q){ artQuery=(q||'').toLowerCase(); renderArtifacts(); }
+  /* ---------- My Creations: real storage + editor ---------- */
+  const CREATION_ICONS={doc:'doc', slides:'chart', design:'pen', sale:'receipt', reminder:'clock', debt:'book', appointment:'calendar'};
+  let artShown=[];
+  function loadCreations(){ try{ return JSON.parse(localStorage.getItem('wekil_creations')||'[]'); }catch(e){ return []; } }
+  function storeCreations(list){ localStorage.setItem('wekil_creations', JSON.stringify(list)); }
+  function todayShort(){ return new Date().toLocaleDateString('en-US',{month:'short', day:'numeric'}); }
+  function saveCreation(kind, title, content){
+    const list=loadCreations();
+    const c={id:'c'+Date.now(), kind:kind, title:title, content:content, date:todayShort()};
+    list.unshift(c); storeCreations(list); renderArtifacts(); return c;
+  }
+  function updateCreation(id, title, content){
+    const list=loadCreations();
+    const c=list.find(x=>x.id===id); if(!c) return null;
+    c.title=title; c.content=content; storeCreations(list); renderArtifacts(); return c;
+  }
+  function deleteCreation(id){ storeCreations(loadCreations().filter(x=>x.id!==id)); renderArtifacts(); }
+  function allCreations(){
+    const mine=loadCreations().map(c=>({id:c.id, kind:c.kind, title:c.title, content:c.content||'', date:c.date, cls:'mine', icon:ic(CREATION_ICONS[c.kind]||'doc'), mine:true}));
+    return {mine:mine, shared:[]};
+  }
+  let editingId=null, editingKind='doc', deleteArmed=false;
+  function kindLabel(kind){ return T[lang]['kind'+kind[0].toUpperCase()+kind.slice(1)] || kind; }
+  function untitledFor(kind){
+    if(kind==='slides') return T[lang].untitledSlides||'Untitled Slides';
+    if(kind==='design') return T[lang].untitledDesign||'Untitled Design';
+    return T[lang].untitledDoc||'Untitled Doc';
+  }
+  function openCreationEditor(c, kind){
+    editingKind = c ? c.kind : kind;
+    editingId = c ? c.id : null;
+    deleteArmed=false;
+    const del=document.getElementById('crDeleteBtn');
+    document.getElementById('crTitle').textContent = kindLabel(editingKind);
+    document.getElementById('crTitleLabel').textContent = T[lang].crTitleLabel||'Title';
+    document.getElementById('crContentLabel').textContent = T[lang].crContentLabel||'Content';
+    document.getElementById('crTitleInput').value = c ? c.title : untitledFor(editingKind);
+    document.getElementById('crContentInput').value = c ? (c.content||'') : '';
+    document.getElementById('crSaveBtn').textContent = T[lang].crSave||'Save';
+    del.textContent = T[lang].deleteBtn||'Delete';
+    del.style.display = editingId ? '' : 'none';
+    closeArtifacts(); openSheet('creation');
+  }
+  function saveCreationEditor(){
+    const title=document.getElementById('crTitleInput').value.trim() || untitledFor(editingKind);
+    const content=document.getElementById('crContentInput').value;
+    if(editingId){ updateCreation(editingId, title, content); }
+    else { const c=saveCreation(editingKind, title, content); editingId=c.id; document.getElementById('crDeleteBtn').style.display=''; }
+    toast(T[lang].saved||'Saved ✓');
+  }
+  function deleteCreationEditor(){
+    if(!editingId) return;
+    const del=document.getElementById('crDeleteBtn');
+    if(!deleteArmed){ deleteArmed=true; del.textContent=T[lang].tapDelete||'Tap again to delete'; return; }
+    deleteCreation(editingId); editingId=null; closeSheets(); toast(T[lang].deleted||'Deleted');
+  }
+  function addCreationCard(div, c){
+    const row=document.createElement('div'); row.className='cr-card';
+    const tx=document.createElement('span'); tx.textContent=(T[lang].savedIn||'Preview — not saved to your phone')+': '+c.title;
+    const b=document.createElement('button'); b.className='cr-open'; b.textContent=T[lang].openCreation||'Open';
+    b.onclick=()=>{ openCreationEditor(c, c.kind); };
+    row.appendChild(tx); row.appendChild(b); div.appendChild(row);
+  }
+  // Amharic reminder phrases. The text after the phrase (or, when
+  // the phrase is at the end, the text before it) is the reminder.
+  function amReminderText(s){
+    const t=s.replace(/[።.!?]+$/, '').trim();
+    if(t.startsWith('አስታውሰኝ፡')){ const c=t.slice('አስታውሰኝ፡'.length).trim(); return c||null; }
+    if(t.startsWith('አስታውሰኝ ')){ const c=t.slice('አስታውሰኝ'.length).trim(); return c||null; }
+    if(t.endsWith(' አስታውሰኝ')){ const c=t.slice(0, -'አስታውሰኝ'.length).trim(); return c||null; }
+    if(t.startsWith('ማስታወሻ፡')){ const c=t.slice('ማስታወሻ፡'.length).trim(); return c||null; }
+    if(t.startsWith('ማስታወሻ ')){ const c=t.slice('ማስታወሻ'.length).trim(); return c||null; }
+    if(t.endsWith(' ማስታወሻ')){ const c=t.slice(0, -'ማስታወሻ'.length).trim(); return c||null; }
+    return null;
+  }
+
+  function creationFromMessage(g){
+    const s=g.trim(); if(!s) return null;
+    const short=(x)=>x.length>48 ? x.slice(0,48)+'…' : x;
+    if(lang==='am'){
+      const rem=amReminderText(s);
+      if(s.startsWith('ክፍያ አስቀምጥ፡')){ const c=s.slice('ክፍያ አስቀምጥ፡'.length).trim(); if(!c) return null; return {kind:'sale', title:'ክፍያ — '+short(c), content:c}; }
+      if(s.includes('ክፍያ')){ return {kind:'sale', title:'ክፍያ — '+short(s), content:s}; }
+      if(rem){ return {kind:'reminder', title:'ማስታወሻ — '+short(rem), content:rem}; }
+      if(s.startsWith('እዳ ያለበት ሰው አክል፡')){ const c=s.slice('እዳ ያለበት ሰው አክል፡'.length).trim(); if(!c) return null; return {kind:'debt', title:'እዳ — '+short(c), content:c}; }
+      if(s.startsWith('ቀጠሮ')){ return {kind:'appointment', title:'ቀጠሮ — '+short(s), content:s}; }
+      return null;
+    }
+    const low=s.toLowerCase();
+    if(low.startsWith('save a payment:')){ const c=s.slice('save a payment:'.length).trim(); if(!c) return null; return {kind:'sale', title:'Payment — '+short(c), content:c}; }
+    const mSale=s.match(/^save a payment of (.+)$/i); if(mSale){ return {kind:'sale', title:'Payment — '+short(mSale[1]), content:s}; }
+    if(low.startsWith('remind me to ')){ const c=s.slice('remind me to '.length).trim(); if(!c) return null; return {kind:'reminder', title:'Reminder — '+short(c), content:c}; }
+    if(low.startsWith('add a person who owes me:')){ const c=s.slice('add a person who owes me:'.length).trim(); if(!c) return null; return {kind:'debt', title:'Owes me — '+short(c), content:c}; }
+    if(low.startsWith('set an appointment')){ const c=s.replace(/^set an appointment:?\s*/i,'').trim(); return {kind:'appointment', title:'Appointment — '+short(c||s), content:c||s}; }
+    return null;
+  }
+  function alarmFromMessage(g){
+    const s=g.trim(); if(!s) return null;
+    if(lang==='am'){
+      if(!s.includes('አስነሳኝ')) return null;
+      const t=s.replace('አስነሳኝ','').replace('ላይ','').trim();
+      if(!t) return null;
+      return {time:t};
+    }
+    const low=s.toLowerCase();
+    if(low.startsWith('wake me at ')){ const t=s.slice('wake me at '.length).trim(); if(t) return {time:t}; }
+    if(low.startsWith('set an alarm for ')){ const t=s.slice('set an alarm for '.length).trim(); if(t) return {time:t}; }
+    if(low.startsWith('set an alarm ')){ const t=s.slice('set an alarm '.length).trim(); if(t) return {time:t}; }
+    return null;
+  }
+
+  function amountNum(s){
+    const m=String(s||'').match(/(\d[\d,]*\.?\d*)\s*(birr|ብር)/i);
+    return m ? parseFloat(m[1].replace(/,/g,'')) : null;
+  }
+  function isToday(c){
+    const n=parseInt(String(c.id||'').replace(/^c/,''), 10);
+    if(!isNaN(n)){
+      const d=new Date(n), now=new Date();
+      return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+    }
+    return c.date===todayShort();
+  }
+  function debtName(c){
+    const n=nameBeforeAmount(c.content||'');
+    return n || T[lang].confirmCustomer;
+  }
+  function renderTodayCard(){
+    const box=document.getElementById('todayCard'); if(!box) return;
+    const t=T[lang];
+    const fmt=n=>Number(n).toLocaleString('en-US');
+    const all=loadCreations();
+    let paymentsTotal=0, noAmount=0;
+    all.forEach(c=>{
+      if(c.kind!=='sale' || !isToday(c)) return;
+      let a=amountNum(c.content); if(a==null) a=amountNum(c.title);
+      if(a==null) noAmount++;
+      else paymentsTotal+=a;
+    });
+    const debts=all.filter(c=>c.kind==='debt').map(c=>{
+      let a=amountNum(c.content); if(a==null) a=amountNum(c.title);
+      return {name:debtName(c), amount:a};
+    });
+    const oweTotal=debts.reduce((s,d)=>s+(d.amount||0), 0);
+    const top=debts.slice().sort((a,b)=>(b.amount||0)-(a.amount||0)).slice(0,3);
+    box.textContent='';
+    const card=document.createElement('div'); card.className='today-card';
+    const h=document.createElement('h3'); h.textContent=t.todayTitle; card.appendChild(h);
+    const row=(label, value)=>{
+      const r=document.createElement('div'); r.className='today-row';
+      const l=document.createElement('span'); l.className='today-label'; l.textContent=label; r.appendChild(l);
+      const v=document.createElement('span'); v.className='today-num'; v.textContent=value; r.appendChild(v);
+      card.appendChild(r);
+    };
+    row(t.todaySales, fmt(paymentsTotal)+' '+t.birr);
+    if(noAmount>0) row(t.todayNoAmount, String(noAmount));
+    row(t.todayOweCount, String(debts.length));
+    row(t.todayOweTotal, fmt(oweTotal)+' '+t.birr);
+    const sec=document.createElement('div'); sec.className='today-sec'; sec.textContent=t.todayTopDebts; card.appendChild(sec);
+    if(!top.length){
+      const n=document.createElement('div'); n.className='today-note'; n.textContent=t.todayNoDebts; card.appendChild(n);
+    } else {
+      top.forEach(d=>{
+        const r=document.createElement('div'); r.className='today-debt';
+        const nm=document.createElement('b'); nm.textContent=d.name; r.appendChild(nm);
+        const am=document.createElement('span'); am.textContent=d.amount==null?'—':fmt(d.amount)+' '+t.birr; r.appendChild(am);
+        card.appendChild(r);
+      });
+    }
+    box.appendChild(card);
+  }
+
+  function renderArtifacts(){
+    renderTodayCard();
+    const grid=document.getElementById('artGrid'); if(!grid) return;
+    const empty=document.getElementById('artEmpty');
+    const t=T[lang];
+    const data=allCreations();
+    let shown = artTab==='yours' ? data.mine : artTab==='shared' ? data.shared : data.mine.concat(data.shared);
+    shown=shown.filter(a=>!artQuery || a.title.toLowerCase().includes(artQuery));
+    artShown=shown;
+    if(!shown.length){
+      grid.innerHTML='';
+      document.getElementById('artEmptyTx').textContent = artTab==='shared' ? t.artEmptyTx : (t.artEmptyMine||'No creations yet.');
+      empty.style.display='';
+      return;
+    }
+    empty.style.display='none';
+    grid.innerHTML='';
+    shown.forEach((a,i)=>{
+      const btn=document.createElement('button');
+      btn.className='art-card';
+      btn.onclick=()=>openArtifactDetail(i);
+      const th=document.createElement('span');
+      th.className='art-thumb '+a.cls;
+      const ic=document.createElement('span');
+      ic.className='ic';
+      ic.innerHTML=a.icon;
+      const tb=document.createElement('b');
+      tb.textContent=a.title;
+      th.append(ic, tb);
+      const bd=document.createElement('span');
+      bd.className='art-body2';
+      const bb=document.createElement('b');
+      bb.textContent=a.title;
+      const ds=document.createElement('span');
+      ds.textContent=a.date;
+      bd.append(bb, ds);
+      btn.append(th, bd);
+      grid.appendChild(btn);
+    });
+  }
+  function toggleArtView(){
+    artListView=!artListView;
+    document.getElementById('artGrid').classList.toggle('list', artListView);
+    document.getElementById('artViewBtn').innerHTML = artListView ? ic('grid')+' Grid' : ic('list')+' List';
+  }
+  function makeNew(kind){ openCreationEditor(null, kind==='docs' ? 'doc' : kind); }
+  function openArtifactDetail(i){
+    const a=artShown[i]; if(!a) return;
+    openCreationEditor(a, a.kind);
+  }
+  function openLanguageDialog(){
+    closeSidebar(); closeProfileMenu(); closePlusMenu();
+    document.getElementById('langBackdrop').classList.add('open');
+    document.getElementById('langDialog').classList.add('open');
+    document.getElementById('langSearch').value='';
+    document.querySelectorAll('#langGrid .lang-cell').forEach(c=>c.style.display='');
+    updateLangChecks();
+  }
+  function closeLanguage(){ document.getElementById('langBackdrop').classList.remove('open'); document.getElementById('langDialog').classList.remove('open'); }
+  function filterLang(q){
+    q=(q||'').toLowerCase();
+    document.querySelectorAll('#langGrid .lang-cell').forEach(c=>{ c.style.display = (!q || c.textContent.toLowerCase().includes(q)) ? '' : 'none'; });
+  }
+  function updateLangChecks(){
+    document.querySelectorAll('#langGrid .lang-cell').forEach(c=>{
+      c.classList.toggle('sel', c.dataset.lang===lang);
+    });
+  }
+  function pickLang(code){
+    if(code==='en' || code==='am'){
+      lang=code; localStorage.setItem('wekil_lang', lang); applyLang(); updateLangChecks(); closeLanguage();
+    } else if(code==='om'){ toast(T[lang].omSoon); }
+    else if(code==='ti'){ toast(T[lang].tiSoon); }
+  }
+
+  /* ---------- Plans page ---------- */
+  const PLANS=[
+    {icon:LOGO, name:'planFreeName', sub:'planFreeSub', price:'priceFree', per:'perMonth', btn:'planFreeBtn', note:'', feats:['planFreeF1','planFreeF2','planFreeF3','planFreeF4'], hot:false, act:'free'},
+    {icon:ic('card'), name:'planMonthName', sub:'planMonthSub', price:'priceMonth', per:'perMonth', btn:'planMonthBtn', note:'planMonthNote', feats:['planMonthF0','planMonthF1','planMonthF2','planMonthF3','planMonthF4'], hot:true, act:'pay'},
+    {icon:ic('calendar'), name:'planYearName', sub:'planYearSub', price:'priceYear', per:'perYear', btn:'planYearBtn', note:'planYearNote', feats:['planYearF0','planYearF1','planYearF2','planYearF3'], hot:false, act:'pay'}
+  ];
+  function renderPlans(){
+    const grid=document.getElementById('plansGrid'); if(!grid) return;
+    const t=T[lang];
+    grid.innerHTML=PLANS.map((p,idx)=>{
+      let h='<div class="plan-card'+(p.hot?' hot':'')+'">';
+      if(p.hot) h+='<span class="plan-tag">'+t.mostPopular+'</span>';
+      h+='<div class="plan-ic">'+p.icon+'</div>';
+      h+='<div class="plan-name">'+t[p.name]+'</div>';
+      h+='<div class="plan-sub">'+t[p.sub]+'</div>';
+      h+='<div class="plan-price">'+t[p.price]+' <small>/ '+t[p.per]+'</small></div>';
+      h+='<button class="plan-btn" onclick="planClick('+idx+')">'+t[p.btn]+'</button>';
+      if(p.note) h+='<div class="plan-note">'+t[p.note]+'</div>';
+      h+='<div class="plan-feats">'+p.feats.map(f=>'<div><span class="ck">✓</span>'+t[f]+'</div>').join('')+'</div></div>';
+      return h;
+    }).join('');
+  }
+  function planClick(idx){
+    const p=PLANS[idx]; if(!p) return;
+    if(p.act==='free') chooseFree();
+    else openPay(idx);
+  }
+  function chooseFree(){
+    localStorage.setItem('wekil_plan','free');
+    applyPlan();
+    closePlans();
+    toast(T[lang].freeToast);
+    document.getElementById('goal').focus();
+  }
+  function applyPlan(){
+    const plan=localStorage.getItem('wekil_plan');
+    const t=T[lang];
+    if(plan==='free'){
+      setText('planFree', t.planFreeChosen);
+      setText('sideProfileSub', t.sideProfileSubFree);
+    } else {
+      setText('planFree', t.planFree);
+      setText('sideProfileSub', t.sideProfileSub);
+    }
+  }
+  function openPay(idx){
+    const p=PLANS[idx] || PLANS[1];
+    const t=T[lang];
+    setText('payPlan', t[p.name]);
+    document.getElementById('payPrice').innerHTML=t[p.price]+' <small>/ '+t[p.per]+'</small>';
+    closePlans();
+    setPayMethod('telebirr');
+    document.getElementById('payDialog').classList.add('open');
+  }
+  function closePay(){ document.getElementById('payDialog').classList.remove('open'); }
+  let payMethod='telebirr';
+  function refreshPayForm(){
+    const t=T[lang];
+    const max=payMethod==='cbe'?13:10;
+    setText('payMTelebirr', t.payTelebirr);
+    setText('payMCBE', t.payCBE);
+    setText('payNumLabel', payMethod==='cbe'?t.payAccountLabel:t.payPhoneLabel);
+    const inp=document.getElementById('payNumInput');
+    inp.placeholder=payMethod==='cbe'?t.payAccountPh:t.payPhonePh;
+    inp.maxLength=max;
+    updatePayCount();
+  }
+  function setPayMethod(m){
+    payMethod=m;
+    document.getElementById('payMTelebirr').classList.toggle('active', m==='telebirr');
+    document.getElementById('payMCBE').classList.toggle('active', m==='cbe');
+    document.getElementById('payNumInput').value='';
+    document.getElementById('payNumErr').style.display='none';
+    refreshPayForm();
+  }
+  function updatePayCount(){
+    const inp=document.getElementById('payNumInput');
+    const max=payMethod==='cbe'?13:10;
+    document.getElementById('payNumCount').textContent=inp.value.length+' / '+max;
+  }
+  function payNumValid(){
+    const v=document.getElementById('payNumInput').value;
+    const max=payMethod==='cbe'?13:10;
+    return v.length===max && /^\d+$/.test(v);
+  }
+  function payShowErr(force){
+    const inp=document.getElementById('payNumInput');
+    const err=document.getElementById('payNumErr');
+    if(!inp.value && !force){ err.style.display='none'; return false; }
+    if(payNumValid()){ err.style.display='none'; return true; }
+    err.textContent=T[lang][payMethod==='cbe'?'payErrorAccount':'payErrorPhone'];
+    err.style.display='';
+    return false;
+  }
+  function payNumInput(){
+    updatePayCount();
+    if(payNumValid()) document.getElementById('payNumErr').style.display='none';
+  }
+  function payNumBlur(){ payShowErr(false); }
+  function payNow(){
+    if(payShowErr(true)) toast(T[lang].payNotConnected);
+  }
+  function openPlans(){
+    closeSidebar(); closeProfileMenu(); closePlusMenu();
+    renderPlans();
+    document.getElementById('plansDialog').classList.add('open');
+  }
+  function closePlans(){ document.getElementById('plansDialog').classList.remove('open'); }
+  function toggleLang(){ lang = (lang==='en') ? 'am' : 'en'; localStorage.setItem('wekil_lang', lang); applyLang(); }
+
+  function applyTheme(){
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.getElementById('themeBtn').innerHTML = dark ? ICON_SUN : ICON_MOON;
+    document.getElementById('swDark').classList.toggle('on', dark);
+  }
+  function toggleDark(){ dark = !dark; localStorage.setItem('wekil_theme', dark ? 'dark' : 'light'); applyTheme(); }
+
+  function syncNameDisplays(name){
+    if(!name) return;
+    const first = name.split(' ')[0];
+    const letter = first.charAt(0).toUpperCase();
+    setText('profileNameView', name);
+    const pn = document.getElementById('profileName'); if(pn) pn.value = name;
+    const sf = document.getElementById('setFullName'); if(sf) sf.value = name;
+    setText('sideProfileName', first);
+    document.querySelectorAll('.side-profile .p-av, #sheet-profile .p-avatar, .set-photo .p-av').forEach(el=>{ el.textContent = letter; });
+  }
+  function applyPrefs(){
+    document.body.classList.toggle('large', largeText);
+    document.getElementById('swText').classList.toggle('on', largeText);
+    document.getElementById('swVoice').classList.toggle('on', voice);
+    const savedName = localStorage.getItem('wekil_name');
+    if(savedName){ syncNameDisplays(savedName); }
+    const cf = localStorage.getItem('wekil_callname'); if(cf){ const e=document.getElementById('setCallName'); if(e) e.value=cf; }
+    const wk = localStorage.getItem('wekil_work'); if(wk){ const e=document.getElementById('setWork'); if(e) e.value=wk; }
+  }
+  function toggleText(){ largeText = !largeText; localStorage.setItem('wekil_text', largeText ? 'large' : 'normal'); applyPrefs(); }
+  function toggleVoice(){
+    if(!voice && !('speechSynthesis' in window)){ toast(T[lang].voiceNope||'Voice is not available on this device.'); return; }
+    voice = !voice; localStorage.setItem('wekil_voice', voice ? 'on' : 'off'); applyPrefs();
+    if(voice && 'speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(T[lang].voiceOn||'Voice answers on. I will speak my answers.'); u.lang=(lang==='am')?'am-ET':'en-US'; speechSynthesis.speak(u); }
+    else if('speechSynthesis' in window){ speechSynthesis.cancel(); }
+  }
+  /* ---------- Notifications settings ---------- */
+  const NTF_KEYS=['remind','appt','alarm','birthday','weather','sound','quiet'];
+  const ntf={};
+  NTF_KEYS.forEach(k=>{ ntf[k]=localStorage.getItem('wekil_ntf_'+k)!=='off'; });
+  function toggleNtf(k){ ntf[k]=!ntf[k]; localStorage.setItem('wekil_ntf_'+k, ntf[k]?'on':'off'); applyNtfs(); }
+  function applyNtfs(){ NTF_KEYS.forEach(k=>{ const el=document.getElementById('swNtf'+k[0].toUpperCase()+k.slice(1)); if(el) el.classList.toggle('on', ntf[k]); }); }
+
+  function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sideBackdrop').classList.add('open'); }
+  function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sideBackdrop').classList.remove('open'); }
+  function hideGreet(){ const g=document.getElementById('greetBlock'); if(g) g.style.display='none'; }
+  function showGreet(){ const g=document.getElementById('greetBlock'); if(g) g.style.display=''; }
+  // ---- Chat history (localStorage 'wekil_chats') ----
+  let currentChatId=null;
+  let currentMessages=[];
+  function loadChats(){ try{ return JSON.parse(localStorage.getItem('wekil_chats')||'[]'); }catch(e){ return []; } }
+  function storeChats(list){ try{ localStorage.setItem('wekil_chats', JSON.stringify(list)); }catch(e){} }
+  function chatTitle(s){ const t=(s||'').trim(); return t.length>48 ? t.slice(0,48)+'…' : t; }
+  function dateShort(ts){ try{ return new Date(ts).toLocaleDateString('en-US',{month:'short', day:'numeric'}); }catch(e){ return ''; } }
+  function recordMsg(role, text, cid, real, gemini){
+    const m={role:role, text:text}; if(cid) m.cid=cid; if(real) m.real=true; if(gemini) m.gemini=true;
+    currentMessages.push(m);
+    saveCurrentChat(true);
+  }
+  function saveCurrentChat(touch){
+    if(!currentMessages.length) return;
+    if(!currentChatId) currentChatId='ch'+Date.now();
+    const list=loadChats();
+    const firstMe=currentMessages.find(m=>m.role==='me');
+    const title=chatTitle(firstMe?firstMe.text:currentMessages[0].text);
+    const existing=list.find(x=>x.id===currentChatId);
+    const rec={id:currentChatId, title:title, date:(touch||!existing)?Date.now():existing.date, messages:currentMessages};
+    const i=list.findIndex(x=>x.id===currentChatId);
+    if(i>=0) list[i]=rec; else list.push(rec);
+    storeChats(list);
+    try{ localStorage.setItem('wekil_current_chat', currentChatId); }catch(e){}
+    renderChatList();
+  }
+  function renderCurrentChat(){
+    const chat=document.getElementById('chat');
+    chat.querySelectorAll('.row,.msg.me').forEach(n=>n.remove());
+    if(!currentMessages.length){ showGreet(); updateGreeting(); return; }
+    hideGreet();
+    currentMessages.forEach(m=>{
+      const div=addMsg(m.text, m.role);
+      if(m.role==='ai'){
+        if(m.cid){ const c=loadCreations().find(x=>x.id===m.cid); if(c) addCreationCard(div, c); }
+        if(!m.real){ const tag=document.createElement('span'); tag.className='demo-tag'; tag.textContent=T[lang].demo; div.appendChild(document.createElement('br')); div.appendChild(tag); }
+      }
+    });
+    chat.scrollTop=chat.scrollHeight;
+  }
+  function renderChatList(){
+    const box=document.getElementById('chatList'); if(!box) return;
+    box.innerHTML='';
+    const list=loadChats().sort((a,b)=>(b.date||0)-(a.date||0)).slice(0,20);
+    if(!list.length){ const p=document.createElement('div'); p.className='chat-empty'; p.textContent=T[lang].noChats||'No chats yet.'; box.appendChild(p); return; }
+    list.forEach(ch=>{
+      const row=document.createElement('div'); row.className='chat-row'+(ch.id===currentChatId?' active':'');
+      const btn=document.createElement('button'); btn.className='chat-open'; btn.type='button';
+      const t=document.createElement('span'); t.className='chat-title'; t.textContent=ch.title||''; btn.appendChild(t);
+      const d=document.createElement('span'); d.className='chat-date'; d.textContent=dateShort(ch.date); btn.appendChild(d);
+      btn.onclick=()=>openChat(ch.id);
+      row.appendChild(btn);
+      const del=document.createElement('button'); del.className='chat-del'; del.type='button'; del.textContent='✕'; del.setAttribute('aria-label', T[lang].deleteChat||'Delete chat');
+      del.onclick=(e)=>{ e.stopPropagation(); deleteChatAsk(ch.id, del); };
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+  }
+  let armedChatId=null; let armedChatTimer=null;
+  function deleteChatAsk(id, btn){
+    if(armedChatId===id){
+      clearTimeout(armedChatTimer); armedChatId=null;
+      storeChats(loadChats().filter(x=>x.id!==id));
+      if(id===currentChatId){ currentChatId=null; currentMessages=[]; try{ localStorage.removeItem('wekil_current_chat'); }catch(e){} renderCurrentChat(); }
+      renderChatList();
+      return;
+    }
+    armedChatId=id; btn.textContent=T[lang].tapDelete||'Tap again to delete'; btn.classList.add('armed');
+    clearTimeout(armedChatTimer);
+    armedChatTimer=setTimeout(()=>{ armedChatId=null; renderChatList(); }, 5000);
+  }
+  function openChat(id){
+    const ch=loadChats().find(x=>x.id===id); if(!ch) return;
+    saveCurrentChat();
+    currentChatId=id; currentMessages=(ch.messages||[]).slice();
+    renderCurrentChat();
+    try{ localStorage.setItem('wekil_current_chat', id); }catch(e){}
+    closeSidebar(); document.getElementById('goal').focus();
+    renderChatList();
+  }
+  function newChat(){
+    saveCurrentChat();
+    agentRunning=false; pendingSpan=null; liveSpan=null; setSendRunning(false); clearThink();
+    const chat=document.getElementById('chat');
+    chat.querySelectorAll('.row,.msg.me').forEach(n=>n.remove());
+    currentChatId=null; currentMessages=[];
+    try{ localStorage.removeItem('wekil_current_chat'); }catch(e){}
+    showGreet(); updateGreeting(); closeSidebar();
+    document.getElementById('goal').value=''; document.getElementById('goal').focus();
+    renderChatList();
+  }
+
+  function searchSoon(){ document.getElementById('goal').focus(); toast(T[lang].searchSoon); }
+  let attachedFile = null;
+  function togglePlusMenu(e){ if(e) e.stopPropagation(); closeProfileMenu(); document.getElementById('plusMenu').classList.toggle('open'); }
+  function closePlusMenu(){ document.getElementById('plusMenu').classList.remove('open'); }
+  function plusUpload(){ closePlusMenu(); document.getElementById('fileInput').click(); }
+  function plusScreenshot(){ closePlusMenu(); toast(T[lang].shotSoon); }
+  function plusSoon(kind){ closePlusMenu(); toast(T[lang][kind+'Soon']); }
+  function plusAction(kind){
+    closePlusMenu();
+    const box=document.getElementById('goal');
+    box.value=T[lang][kind+'Fill'] || '';
+    box.dispatchEvent(new Event('input'));
+    box.focus();
+  }
+  function removeAttach(){ attachedFile=null; document.getElementById('attachRow').classList.remove('show'); document.getElementById('fileInput').value=''; }
+  function toggleProfileMenu(e){ if(e) e.stopPropagation(); document.getElementById('profileMenu').classList.toggle('open'); }
+  function closeProfileMenu(){ document.getElementById('profileMenu').classList.remove('open'); document.getElementById('learnMenu').classList.remove('open'); }
+  function toggleLearnMenu(e){ if(e) e.stopPropagation(); document.getElementById('learnMenu').classList.toggle('open'); }
+  function policySoon(kind){ toast(T[lang][kind+'Soon']); }
+  document.addEventListener('click', (e)=>{
+    const pm = document.getElementById('profileMenu');
+    if(pm.classList.contains('open') && !pm.contains(e.target) && !e.target.closest('.side-profile')) pm.classList.remove('open');
+    const pl = document.getElementById('plusMenu');
+    if(pl.classList.contains('open') && !pl.contains(e.target) && e.target.id!=='plusBtn') pl.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='Escape'){ closeSheets(); closeSettingsDialog(); closeProfileMenu(); closeSidebar(); closePlusMenu(); closeSearch(); closeLanguage(); closeArtifacts(); closePlans(); closePay(); return; }
+    if(e.ctrlKey && !e.shiftKey && (e.key==='u' || e.key==='U')){ e.preventDefault(); plusUpload(); }
+    if((e.ctrlKey||e.metaKey) && (e.key==='k' || e.key==='K')){ e.preventDefault(); openSearch(); }
+    if(e.key==='/' && document.getElementById('searchDialog').classList.contains('open') && e.target.id!=='searchInput'){ e.preventDefault(); document.getElementById('searchInput').focus(); }
+    if(e.ctrlKey && e.shiftKey && e.key === ','){ e.preventDefault(); closeProfileMenu(); openSheet('settings'); }
+  });
+
+  function openSheet(name){
+    if(name==='settings'){ openSettingsDialog(); return; }
+    closeSidebar(); closeProfileMenu();
+    closeSheets(true);
+    document.getElementById('backdrop').classList.add('open');
+    document.getElementById('sheet-'+name).classList.add('open');
+  }
+  function openSettingsDialog(){
+    closeSheets(); closeSidebar(); closeProfileMenu();
+    document.getElementById('settingsDialog').classList.add('open');
+    setPane('account');
+  }
+  function closeSettingsDialog(){ document.getElementById('settingsDialog').classList.remove('open'); }
+  function setPane(name, btn){
+    document.querySelectorAll('#setNav .sn-item').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    else { const b=document.querySelector('#setNav .sn-item[data-pane="'+name+'"]'); if(b) b.classList.add('active'); }
+    ['account','appearance','language','about','notifications'].forEach(p=>{
+      const el=document.getElementById('setPane-'+p); if(el) el.style.display = (p===name) ? '' : 'none';
+    });
+    const other=document.getElementById('setPane-other');
+    if(['yourwekil','privacy'].includes(name)){
+      other.style.display='';
+      const label = btn ? btn.textContent.trim() : name;
+      document.getElementById('otherTitle').textContent = label;
+      document.getElementById('otherText').textContent = T[lang].otherNote;
+      document.getElementById('privacyCard').style.display = (name==='privacy') ? '' : 'none';
+      document.getElementById('otherText').style.display = (name==='privacy') ? 'none' : '';
+    } else { other.style.display='none'; }
+  }
+  function filterSetNav(q){
+    q=(q||'').toLowerCase();
+    document.querySelectorAll('#setNav .sn-item').forEach(b=>{ b.style.display = (!q || b.textContent.toLowerCase().includes(q)) ? '' : 'none'; });
+  }
+  function saveSettingsProfile(){
+    const fn=document.getElementById('setFullName').value.trim();
+    const cn=document.getElementById('setCallName').value.trim();
+    if(!fn){ toast(T[lang].emptyName); return; }
+    localStorage.setItem('wekil_name', fn);
+    localStorage.setItem('wekil_callname', cn);
+    localStorage.setItem('wekil_work', document.getElementById('setWork').value);
+    syncNameDisplays(fn);
+    toast(T[lang].saved); updateGreeting();
+  }
+  function closeSheets(keepBackdrop){
+    const wasConfirm = document.getElementById('sheet-confirm').classList.contains('open') && confirmCb;
+    const wasRestore = document.getElementById('sheet-restore').classList.contains('open') && restoreKeepCb;
+    document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));
+    if(!keepBackdrop) document.getElementById('backdrop').classList.remove('open');
+    if(wasConfirm){ const cb=confirmCb; confirmCb=null; if(cb) cb(false); }
+    if(wasRestore){ const cb=restoreKeepCb; restoreReplaceCb=null; restoreKeepCb=null; if(cb) cb(); }
+  }
+
+  function toast(msg){
+    const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'), 1600);
+  }
+  function saveProfile(){
+    const v = document.getElementById('profileName').value.trim();
+    if(!v){ toast(T[lang].emptyName); return; }
+    localStorage.setItem('wekil_name', v);
+    syncNameDisplays(v);
+    toast(T[lang].saved); closeSheets(); updateGreeting();
+  }
+
+  function fillGoal(el){ document.getElementById('goal').value = el.dataset[lang]; document.getElementById('goal').focus(); }
+
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function mdInline(s){
+    return s
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^\n]+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[^*\w])\*([^*\n]+?)\*/g, '$1<em>$2</em>');
+  }
+  function renderMd(text){
+    // Gemini writes Markdown (**bold**, lists, links). Show it clean:
+    // escape HTML first, then add only our own tags.
+    return escHtml(text).split('\n').map(line=>{
+      const h = line.match(/^(#{1,3})\s+(.*)$/);
+      if(h) return '<strong>' + mdInline(h[2]) + '</strong>';
+      const b = line.match(/^\s*[-*]\s+(.*)$/);
+      if(b) return '• ' + mdInline(b[1]);
+      return mdInline(line);
+    }).join('<br>');
+  }
+  function addMsg(text, who){
+    const col = document.querySelector('#chat .center-col');
+    const chat = document.getElementById('chat');
+    if(who==='me'){
+      const div = document.createElement('div'); div.className='msg me';
+      div.style.whiteSpace='pre-line'; div.textContent = text; col.appendChild(div); chat.scrollTop = chat.scrollHeight; return div;
+    }
+    const row = document.createElement('div'); row.className='row';
+    const av = document.createElement('div'); av.className='avatar'; av.innerHTML=LOGO; row.appendChild(av);
+    const div = document.createElement('div'); div.className='msg ai';
+    const w = document.createElement('div'); w.className='who'; w.textContent='wEKIL'; div.appendChild(w);
+    const span = document.createElement('span'); span.style.whiteSpace='pre-line'; span.innerHTML = renderMd(text); div.appendChild(span);
+    row.appendChild(div); col.appendChild(row); chat.scrollTop = chat.scrollHeight; return div;
+  }
+
+  let liveSpan = null, agentRunning = false, pendingSpan = null;
+  let thinkTimer2=null, thinkTimer20=null;
+  function clearThinkTimers(){ if(thinkTimer2){ clearTimeout(thinkTimer2); thinkTimer2=null; } if(thinkTimer20){ clearTimeout(thinkTimer20); thinkTimer20=null; } }
+  function showThinkDots(div){
+    if(!div || div.querySelector('.tdots')) return;
+    const d=document.createElement('span'); d.className='tdots'; d.setAttribute('aria-hidden','true');
+    for(let i=0;i<3;i++) d.appendChild(document.createElement('i'));
+    div.appendChild(d);
+  }
+  function clearThinkDots(){ document.querySelectorAll('#chat .tdots').forEach(n=>n.remove()); }
+  function clearThink(){ clearThinkTimers(); clearThinkDots(); }
+  function setSendRunning(r){
+    agentRunning = r;
+    document.getElementById('sendBtn').textContent = r ? '■' : '↑';
+  }
+  window.wekilChat = function(text){
+    clearThink();
+    if(pendingSpan){ pendingSpan.innerHTML = renderMd(text); pendingSpan = null; }
+    else addMsg(text, 'ai');
+    setSendRunning(false);
+    if(voice && 'speechSynthesis' in window){
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = /[\u1200-\u137F]/.test(text) ? 'am-ET' : 'en-US';
+      speechSynthesis.speak(u);
+    }
+    const chat = document.getElementById('chat'); chat.scrollTop = chat.scrollHeight;
+  };
+  window.wekilBegin = function(){ liveSpan = null; setSendRunning(true); };
+  window.wekilDone = function(){ clearThink(); setSendRunning(false); };
+  window.wekilStatus = function(text){
+    if(!liveSpan){ const ai = addMsg('', 'ai'); liveSpan = ai.querySelector('span'); }
+    if(liveSpan) liveSpan.textContent = text;
+    if(/finished|Stopped|stuck|did not answer|does not do|empty list|too long|still in wEKIL/i.test(text)) setSendRunning(false);
+    const chat = document.getElementById('chat'); chat.scrollTop = chat.scrollHeight;
+  };
+  window.wekilCard = function(on, status){
+    // No status card in this page; kept so the app bridge can call it safely.
+  };
+
+  // ---------- Confirmation before an action ----------
+  function amountFromText(s){
+    const m=s.match(/(\d[\d,]*\.?\d*)\s*(birr|ብር)/i);
+    return m ? m[0].trim() : null;
+  }
+  function nameBeforeAmount(c){
+    const m=c.match(/\d[\d,]*\.?\d*/);
+    if(!m) return c;
+    const name=c.slice(0, m.index).trim().replace(/[:\-–—]\s*$/, '');
+    return name || null;
+  }
+  function confirmActionFromMessage(g){
+    const s=g.trim(); if(!s) return null;
+    let kind=null, detail=null;
+    if(lang==='am'){
+      const rem=amReminderText(s);
+      if(s.startsWith('ክፍያ አስቀምጥ፡')){ detail=s.slice('ክፍያ አስቀምጥ፡'.length).trim(); if(detail) kind='sale'; }
+      else if(s.includes('ክፍያ')){ detail=s; kind='sale'; }
+      else if(rem){ detail=rem; kind='reminder'; }
+      else if(s.startsWith('እዳ ያለበት ሰው አክል፡')){ detail=s.slice('እዳ ያለበት ሰው አክል፡'.length).trim(); if(detail) kind='debt'; }
+    } else {
+      const low=s.toLowerCase();
+      if(low.startsWith('save a payment:')){ detail=s.slice('save a payment:'.length).trim(); if(detail) kind='sale'; }
+      else { const mSale=s.match(/^save a payment of (.+)$/i); if(mSale){ detail=mSale[1]; kind='sale'; } }
+      if(!kind && low.startsWith('remind me to ')){ detail=s.slice('remind me to '.length).trim(); if(detail) kind='reminder'; }
+      if(!kind && low.startsWith('add a person who owes me:')){ detail=s.slice('add a person who owes me:'.length).trim(); if(detail) kind='debt'; }
+    }
+    if(!kind) return null;
+    const amt=amountFromText(s);
+    const money=amt || T[lang].noMoney;
+    const label={sale:T[lang].confirmSale, reminder:T[lang].confirmReminder, debt:T[lang].confirmDebt}[kind];
+    let who=T[lang].confirmMe;
+    if(kind==='debt') who=nameBeforeAmount(detail)||T[lang].confirmCustomer;
+    return {kind, what:label+': '+detail, who, money};
+  }
+  let confirmCb = null;
+  function confirmAction(what, who, money, cb){
+    setText('cfTitle', T[lang].confirmTitle);
+    setText('cfWhatLabel', T[lang].confirmWhat);
+    setText('cfWhoLabel', T[lang].confirmWho);
+    setText('cfMoneyLabel', T[lang].confirmMoney);
+    setText('cfWhat', what);
+    setText('cfWho', who);
+    setText('cfMoney', money);
+    setText('cfYesBtn', T[lang].confirmYes);
+    setText('cfNoBtn', T[lang].confirmNo);
+    confirmCb = cb;
+    openSheet('confirm');
+  }
+  function confirmYes(){ const cb=confirmCb; confirmCb=null; closeSheets(); if(cb) cb(true); }
+  function confirmNo(){ const cb=confirmCb; confirmCb=null; closeSheets(); if(cb) cb(false); }
+  function startBridgeRun(sendText){
+    const thinking = addMsg(lang==='am' ? 'እያሰብኩ ነው…' : 'Thinking…', 'ai');
+    pendingSpan = thinking.querySelector('span');
+    setSendRunning(true);
+    clearThink();
+    thinkTimer2=setTimeout(()=>{ showThinkDots(thinking); }, 2000);
+    thinkTimer20=setTimeout(()=>{ if(pendingSpan) pendingSpan.textContent=T[lang].stillWorking||'Still working. You can tap ■ to stop.'; }, 20000);
+    if(window.WekilBridge.chat) window.WekilBridge.chat(sendText);
+    else window.WekilBridge.start(sendText);
+  }
+  function doPreviewReply(sendText){
+    const made = creationFromMessage(sendText);
+    const alarm = !made ? alarmFromMessage(sendText) : null;
+    const previewByKind={sale:'previewSale', reminder:'previewReminder', debt:'previewDebt', appointment:'previewAppointment'};
+    const replyText = alarm ? (T[lang].previewAlarm||'Preview only. This alarm is not set yet. Open the wEKIL app to set it for real.') : made ? (T[lang][previewByKind[made.kind]]||'Preview only. Nothing was set yet. Open the wEKIL app to set it for real.') : T[lang].plan(sendText);
+    const ai = addMsg(replyText, 'ai');
+    let madeCid=null;
+    if(made){ const c = saveCreation(made.kind, made.title, made.content); addCreationCard(ai, c); madeCid=c.id; }
+    recordMsg('ai', replyText, madeCid);
+    const tag = document.createElement('span'); tag.className='demo-tag'; tag.textContent = T[lang].demo; ai.appendChild(document.createElement('br')); ai.appendChild(tag);
+    if(voice && 'speechSynthesis' in window){
+      const u = new SpeechSynthesisUtterance(replyText); u.lang = (lang==='am') ? 'am-ET' : 'en-US'; speechSynthesis.speak(u);
+    }
+    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+  }
+
+  // ---------- First-run guide ----------
+  let introStep = 0;
+  const INTRO_TITLES = ['intro1','intro2','intro3'];
+  const INTRO_EXS = ['intro1Ex','intro2Ex',''];
+  function showIntroStep(n){
+    introStep = n;
+    setText('introTitle', T[lang][INTRO_TITLES[n]]);
+    const exEl = document.getElementById('introEx');
+    if(INTRO_EXS[n]){ exEl.textContent = T[lang][INTRO_EXS[n]]; exEl.style.display=''; }
+    else exEl.style.display='none';
+    setText('introNextBtn', T[lang][n===2 ? 'introStart' : 'introNext']);
+    setText('introSkipBtn', T[lang].introSkip);
+    document.getElementById('introSkipBtn').style.display = n===2 ? 'none' : '';
+    document.querySelectorAll('#introDots i').forEach((d,i)=>d.classList.toggle('on', i===n));
+  }
+  function introNext(){ if(introStep>=2){ introFinish(); return; } showIntroStep(introStep+1); }
+  function introSkip(){ introFinish(); }
+  function introFinish(){
+    document.getElementById('introOverlay').classList.remove('open');
+    try{ localStorage.setItem('wekil_intro_done','1'); }catch(e){}
+  }
+  function maybeShowIntro(){
+    let done=null; try{ done=localStorage.getItem('wekil_intro_done'); }catch(e){}
+    if(done) return;
+    showIntroStep(0);
+    document.getElementById('introOverlay').classList.add('open');
+  }
+
+  // ---------- Google Gemini (free brain) ----------
+  // The key lives only on this phone (localStorage 'wekil_gemini_key').
+  // It is never written into this file and is sent only to Google.
+  // One fixed model for every chat. No model search, no saved model name.
+  const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+  const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
+  try{ localStorage.removeItem('wekil_gemini_model'); }catch(e){}
+  let geminiAbort = null;
+  function getGeminiKey(){ try{ return (localStorage.getItem('wekil_gemini_key')||'').trim(); }catch(e){ return ''; } }
+  function updateBrainUI(){
+    const t = T[lang];
+    const key = getGeminiKey();
+    const st = document.getElementById('geminiStatus');
+    const inp = document.getElementById('geminiKey');
+    if(inp){ inp.placeholder = t.spKeyPh; if(!inp.dataset.filled){ if(key) inp.value = key; inp.dataset.filled='1'; } }
+    if(st) st.textContent = key ? t.spKeySaved : t.spKeyNoKey;
+    setText('spModelVal', key ? t.spModelGemini : t.spModelNone);
+  }
+  function saveGeminiKey(){
+    const inp = document.getElementById('geminiKey');
+    const v = inp ? inp.value.trim() : '';
+    if(!v){ toast(T[lang].spKeyEmpty); return; }
+    try{ localStorage.setItem('wekil_gemini_key', v); }catch(e){}
+    updateBrainUI(); toast(T[lang].spKeySaved);
+  }
+  function removeGeminiKey(){
+    try{ localStorage.removeItem('wekil_gemini_key'); }catch(e){}
+    const inp = document.getElementById('geminiKey'); if(inp){ inp.value=''; delete inp.dataset.filled; }
+    updateBrainUI(); toast(T[lang].spKeyRemoved);
+  }
+  async function geminiErrorFromRes(res){
+    let gm = '';
+    try{ const bt = await res.text(); try{ const bj = JSON.parse(bt); gm = (bj.error && bj.error.message) || ''; }catch(je){ gm = bt; } }catch(te){}
+    const e = new Error('Gemini '+res.status); e.status = res.status; e.googleMessage = gm; return e;
+  }
+  async function geminiGenerate(bodyText){
+    const key = getGeminiKey();
+    let res;
+    try{
+      res = await fetch(GEMINI_URL+'?key='+encodeURIComponent(key), {method:'POST', signal: geminiAbort ? geminiAbort.signal : undefined, headers:{'Content-Type':'text/plain'}, body: bodyText});
+    }catch(e){ if(e && e.name==='AbortError') throw e; const ne = new Error('net'); ne.network = true; throw ne; }
+    return res;
+  }
+  function isAppMessage(text){
+    // True when the text was written by the app itself, never by Gemini:
+    // error lines, preview notes, connection hints. Checked in both
+    // languages, and against the old wording too (old saved chats keep it).
+    const t = String(text||'').trim();
+    if(!t) return true;
+    if(/^Google \d+:/.test(t)) return true;
+    if(t.indexOf('Preview only.') === 0) return true;
+    if(t.indexOf('ቅድመ እይታ') === 0) return true;
+    const appTexts = [
+      T.en.spErrNet, T.en.spErrOther, T.en.spErrEmpty, T.en.spNoKeyChat,
+      T.am.spErrNet, T.am.spErrOther, T.am.spErrEmpty, T.am.spNoKeyChat,
+      'Google answered with an error.', 'ጉግል በስህተት መልሷል።',
+      'Stopped by you.', 'አቋርጠሃል።'
+    ];
+    return appTexts.indexOf(t) !== -1;
+  }
+  async function callGemini(userText){
+    const key = getGeminiKey();
+    if(!key) throw new Error('no-key');
+    const sys = 'You are wEKIL, a helpful assistant for ordinary people in Ethiopia. Answer in the language the user writes in (English or Amharic). Give a full and clear answer: explain the context, say why, and give a short example when it helps the user understand. Use simple words. Do not give a one-line answer when the question needs more.';
+    const realPrior = currentMessages.slice(0, -1).filter(m=>{
+      if(m.role==='me') return true;
+      if(m.role!=='ai') return false;
+      if(m.gemini) return true;
+      if(!m.real) return false;
+      return !isAppMessage(m.text);
+    });
+    const raw = realPrior.slice(-9).map(m=>({role: m.role==='me' ? 'user' : 'model', text: String(m.text||'').trim()})).filter(m=>m.text);
+    const hist = [];
+    for(const m of raw){ const last = hist[hist.length-1]; if(last && last.role===m.role){ last.parts[0].text += '\n' + m.text; } else hist.push({role:m.role, parts:[{text:m.text}]}); }
+    while(hist.length && hist[0].role!=='user') hist.shift();
+    const last = hist[hist.length-1];
+    if(last && last.role==='user'){ last.parts[0].text += '\n' + userText; } else hist.push({role:'user', parts:[{text: userText}]});
+    geminiAbort = new AbortController();
+    const bodyText = JSON.stringify({systemInstruction:{parts:[{text: sys}]}, contents: hist, generationConfig:{temperature:0.3, maxOutputTokens:2048}});
+    const res = await geminiGenerate(bodyText);
+    if(!res.ok) throw await geminiErrorFromRes(res);
+    let data;
+    try{ data = await res.json(); }catch(je){ throw new Error('Gemini bad reply'); }
+    const parts = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts;
+    const txt = parts ? parts.map(p=>p.text||'').join('') : '';
+    if(!txt || !txt.trim()) throw new Error('Gemini empty');
+    return txt;
+  }
+  function geminiErrorDetail(err){
+    const t = T[lang];
+    const key = getGeminiKey();
+    const clean = (m)=>{ let s = String(m||''); if(key && s.indexOf(key) !== -1) s = s.split(key).join('[key hidden]'); return s; };
+    if(err && err.status){
+      let hint = t.spErrOther;
+      if(err.status===400 || err.status===401) hint = t.spErr400;
+      else if(err.status===403) hint = t.spErr403;
+      else if(err.status===404) hint = t.spErr404;
+      else if(err.status===429) hint = t.spErr429;
+      const gm = clean(err.googleMessage);
+      const first = gm ? 'Google ' + err.status + ': ' + gm : 'Google ' + err.status;
+      return first + '\n' + hint;
+    }
+    if(err && err.network) return t.spErrNet;
+    return t.spErrEmpty;
+  }
+  async function doGeminiReply(sendText){
+    const thinking = addMsg(lang==='am' ? 'እያሰብኩ ነው…' : 'Thinking…', 'ai');
+    pendingSpan = thinking.querySelector('span');
+    setSendRunning(true);
+    clearThink();
+    thinkTimer2=setTimeout(()=>{ showThinkDots(thinking); }, 2000);
+    thinkTimer20=setTimeout(()=>{ if(pendingSpan) pendingSpan.textContent=T[lang].stillWorking||'Still working. You can tap ■ to stop.'; }, 20000);
+    try{
+      const answer = await callGemini(sendText);
+      clearThink();
+      if(pendingSpan){ pendingSpan.innerHTML = renderMd(answer); pendingSpan = null; }
+      else addMsg(answer, 'ai');
+      setSendRunning(false);
+      recordMsg('ai', answer, null, true, true);
+      if(voice && 'speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(answer.replace(/\*\*/g,'').replace(/`/g,'')); u.lang=/[\u1200-\u137F]/.test(answer)?'am-ET':'en-US'; speechSynthesis.speak(u); }
+      document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    }catch(err){
+      clearThink();
+      const fail = (err && err.name==='AbortError') ? (lang==='am' ? 'አቋርጠሃል።' : 'Stopped by you.') : geminiErrorDetail(err);
+      if(pendingSpan){ pendingSpan.textContent = fail; pendingSpan = null; }
+      else addMsg(fail, 'ai');
+      setSendRunning(false);
+      recordMsg('ai', fail, null, true);
+      document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    }finally{ geminiAbort = null; }
+  }
+  async function testGeminiKey(){
+    if(!getGeminiKey()){ toast(T[lang].spKeyNeed); return; }
+    const st = document.getElementById('geminiStatus');
+    if(st) st.textContent = T[lang].spTestRun;
+    try{
+      await callGemini(lang==='am' ? 'ሰላም' : 'Hello');
+      if(st) st.textContent = T[lang].spTestOkModel.replace('{model}', GEMINI_MODEL);
+    }catch(err){
+      if(st){ st.style.whiteSpace='pre-line'; st.textContent = (err && err.name==='AbortError') ? (lang==='am' ? 'አቋርጠሃል።' : 'Stopped by you.') : geminiErrorDetail(err); }
+    }
+  }
+
+  // ---------- Backup and restore ----------
+  function backupData(){
+    const data={ app:'wEKIL', version:1, exportedAt:new Date().toISOString(), creations:loadCreations(), chats:loadChats(), currentChatId:currentChatId||null };
+    const blob=new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    const d=new Date(), pad=n=>String(n).padStart(2,'0');
+    a.download='wekil-backup-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast(T[lang].backupDone);
+  }
+  function restoreData(){ document.getElementById('restoreFile').click(); }
+  function restoreFilePicked(ev){
+    const f=ev.target.files && ev.target.files[0];
+    ev.target.value='';
+    if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{ restoreFromText(r.result); };
+    r.onerror=()=>{ toast(T[lang].restoreBad); };
+    r.readAsText(f);
+  }
+  function restoreFromText(text){
+    let data=null;
+    try{ data=JSON.parse(text); }catch(e){ toast(T[lang].restoreBad); return; }
+    if(!data || data.app!=='wEKIL' || (!Array.isArray(data.creations) && !Array.isArray(data.chats))){ toast(T[lang].restoreBad); return; }
+    const inC=Array.isArray(data.creations)?data.creations:[];
+    const inH=Array.isArray(data.chats)?data.chats:[];
+    const myC=loadCreations(), myH=loadChats();
+    const cIds=new Set(myC.map(c=>c&&c.id));
+    const hIds=new Set(myH.map(c=>c&&c.id));
+    const newC=inC.filter(c=>c&&c.id&&!cIds.has(c.id));
+    const newH=inH.filter(c=>c&&c.id&&!hIds.has(c.id));
+    const confC=inC.filter(c=>c&&c.id&&cIds.has(c.id));
+    const confH=inH.filter(c=>c&&c.id&&hIds.has(c.id));
+    if(newC.length) storeCreations(myC.concat(newC));
+    if(newH.length) storeChats(myH.concat(newH));
+    const added=newC.length+newH.length;
+    const finish=(replaced)=>{
+      if(data.currentChatId){
+        const allH=loadChats();
+        const cur=allH.find(c=>c.id===data.currentChatId);
+        if(cur){ currentChatId=cur.id; currentMessages=(cur.messages||[]).slice(); try{ localStorage.setItem('wekil_current_chat', currentChatId); }catch(e){} renderCurrentChat(); }
+      }
+      renderChatList(); renderArtifacts();
+      toast(added||replaced ? T[lang].restoreDone : T[lang].restoreNone);
+    };
+    if(confC.length||confH.length){
+      showRestoreConflicts(confC, confH, ()=>{
+        const cList=loadCreations(), hList=loadChats();
+        confC.forEach(c=>{ const i=cList.findIndex(x=>x.id===c.id); if(i>=0) cList[i]=c; });
+        confH.forEach(c=>{ const i=hList.findIndex(x=>x.id===c.id); if(i>=0) hList[i]=c; });
+        storeCreations(cList); storeChats(hList);
+        finish(confC.length+confH.length);
+      }, ()=>{ finish(0); });
+    } else {
+      finish(0);
+    }
+  }
+  let restoreReplaceCb=null, restoreKeepCb=null;
+  function showRestoreConflicts(confC, confH, onReplace, onKeep){
+    setText('rsTitle', T[lang].restoreTitle);
+    setText('rsSub', T[lang].restoreSub);
+    setText('rsReplaceBtn', T[lang].restoreReplace);
+    setText('rsKeepBtn', T[lang].restoreKeep);
+    const list=document.getElementById('rsList'); list.textContent='';
+    confC.concat(confH).forEach(c=>{
+      const row=document.createElement('div'); row.className='rs-item';
+      row.textContent=c.title||c.id;
+      list.appendChild(row);
+    });
+    restoreReplaceCb=onReplace; restoreKeepCb=onKeep;
+    closeSettingsDialog();
+    openSheet('restore');
+  }
+  function restoreReplace(){ const cb=restoreReplaceCb; restoreReplaceCb=null; restoreKeepCb=null; closeSheets(); if(cb) cb(); }
+  function restoreKeep(){ const cb=restoreKeepCb; restoreReplaceCb=null; restoreKeepCb=null; closeSheets(); if(cb) cb(); }
+
+  // ---------- Feedback (saved on this phone only; nothing sent online) ----------
+  let fbListVisible=false;
+  function loadFeedback(){ try{ return JSON.parse(localStorage.getItem('wekil_feedback')||'[]'); }catch(e){ return []; } }
+  function storeFeedback(list){ try{ localStorage.setItem('wekil_feedback', JSON.stringify(list)); }catch(e){} }
+  function fbTime(t){
+    const d=new Date(t);
+    return d.toLocaleDateString(lang==='am'?'am-ET':'en-US', {month:'short', day:'numeric'})+', '+d.toLocaleTimeString(lang==='am'?'am-ET':'en-US', {hour:'numeric', minute:'2-digit'});
+  }
+  function updateFbCount(){
+    const box=document.getElementById('fbText');
+    document.getElementById('fbCount').textContent=box.value.length+' / 300';
+  }
+  function openFeedback(){
+    setText('fbTitle', T[lang].fbTitle);
+    document.getElementById('fbText').placeholder=T[lang].fbPlaceholder;
+    setText('fbSendBtn', T[lang].fbSend);
+    fbListVisible=false;
+    document.getElementById('fbList').style.display='none';
+    setText('fbShowBtn', T[lang].fbShow);
+    updateFbCount();
+    openSheet('feedback');
+  }
+  function sendFeedback(){
+    const box=document.getElementById('fbText');
+    const text=box.value.trim();
+    if(!text){ toast(T[lang].fbEmptyText); return; }
+    const list=loadFeedback();
+    list.unshift({id:'fb'+Date.now(), text:text, time:Date.now(), lang:lang});
+    storeFeedback(list);
+    box.value=''; updateFbCount();
+    renderFeedbackList();
+    toast(T[lang].fbSaved);
+  }
+  function renderFeedbackList(){
+    const list=document.getElementById('fbList');
+    const items=loadFeedback();
+    list.textContent='';
+    if(!items.length){
+      const d=document.createElement('div'); d.className='fb-empty'; d.textContent=T[lang].fbEmpty; list.appendChild(d);
+      return;
+    }
+    items.forEach(f=>{
+      const row=document.createElement('div'); row.className='fb-item';
+      const tx=document.createElement('div'); tx.className='fb-text'; tx.textContent=f.text||''; row.appendChild(tx);
+      const meta=document.createElement('div'); meta.className='fb-meta';
+      meta.textContent=fbTime(f.time||Date.now())+' · '+(f.lang==='am'?'አማርኛ':'English');
+      row.appendChild(meta);
+      list.appendChild(row);
+    });
+  }
+  function toggleFeedbackList(){
+    fbListVisible=!fbListVisible;
+    document.getElementById('fbList').style.display=fbListVisible?'':'none';
+    if(fbListVisible) renderFeedbackList();
+    setText('fbShowBtn', T[lang][fbListVisible?'fbHide':'fbShow']);
+  }
+
+  function sendGoal(){
+    const box = document.getElementById('goal');
+    const g = box.value.trim();
+    if(window.WekilBridge){
+      if(agentRunning){ window.WekilBridge.stop(); clearThink(); if(pendingSpan){ pendingSpan.textContent = (lang==='am' ? 'አቋርጠሃል።' : 'Stopped by you.'); pendingSpan = null; } setSendRunning(false); return; }
+      const sendText = attachedFile ? ('Attached file: '+attachedFile+(g?'\n'+g:'')) : g;
+      if(!sendText) return;
+      hideGreet(); addMsg(sendText, 'me'); box.value=''; removeAttach(); liveSpan = null;
+      const act = confirmActionFromMessage(sendText);
+      if(act){ confirmAction(act.what, act.who, act.money, ok=>{ if(ok) startBridgeRun(sendText); else toast(T[lang].cancelled); }); return; }
+      startBridgeRun(sendText);
+      return;
+    }
+    if(agentRunning && geminiAbort){ geminiAbort.abort(); return; }
+    const sendText = attachedFile ? ('Attached file: '+attachedFile+(g?'\n'+g:'')) : g;
+    if(!sendText) return;
+    hideGreet(); addMsg(sendText, 'me'); recordMsg('me', sendText); box.value=''; removeAttach();
+    const act = confirmActionFromMessage(sendText);
+    if(act){ confirmAction(act.what, act.who, act.money, ok=>{ if(ok) doPreviewReply(sendText); else toast(T[lang].cancelled); }); return; }
+    if(getGeminiKey()){ doGeminiReply(sendText); return; }
+    const noKey = T[lang].spNoKeyChat;
+    addMsg(noKey, 'ai'); recordMsg('ai', noKey, null, true);
+    if(voice && 'speechSynthesis' in window){ const u = new SpeechSynthesisUtterance(noKey); u.lang = (lang==='am') ? 'am-ET' : 'en-US'; speechSynthesis.speak(u); }
+  }
+
+  function startMic(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){ addMsg(lang==='am' ? 'ማይክሮፎን በዚህ አሳሽ ውስጥ አይገኝም። ግብህን በምትኩ ጻፍ።' : 'Microphone is not available in this browser. Type your goal instead.', 'ai'); return; }
+    const r = new SR(); r.lang = (lang==='am') ? 'am-ET' : 'en-US';
+    const listenMsg = addMsg(T[lang].listening, 'ai');
+    const listenSpan = listenMsg ? listenMsg.querySelector('span') : null;
+    let heard = false;
+    const noHear = ()=>{ if(listenSpan) listenSpan.textContent = (lang==='am' ? 'ድምጽህን አልሰማሁም። እንደገና ሞክር ወይም ጽፈህ ላክ።' : 'I could not hear that. Try again, or type your goal.'); };
+    r.onresult = (e)=>{ heard = true; const tx = e.results[0][0].transcript; document.getElementById('goal').value = tx; if(listenSpan) listenSpan.textContent = T[lang].heard + tx; };
+    r.onerror = (e)=>{ const k = e && e.error;
+      if(k==='not-allowed'){ if(listenSpan) listenSpan.textContent = (lang==='am' ? 'ማይክሮፎኑ ተዘግቷል። ድምጽ በተወረደ ፋይል ውስጥ አይሰራም — wEKILን ከድረ-ገጽ አገናኝ ክፈት። በድረ-ገጽ አገናኝ ላይ ማይክሮፎኑን በክሮም የጣቢያ ቅንብሮች ውስጥ ፍቀድ።' : 'The microphone is blocked. Voice does not work in a downloaded file — open wEKIL from the web link. On the web link, allow the microphone in Chrome site settings.'); }
+      else if(k==='service-not-allowed'){ if(listenSpan) listenSpan.textContent = (lang==='am' ? 'ድምጽ በተወረደ ፋይል ውስጥ አይሰራም። ማይክሮፎኑን ለመጠቀም wEKILን ከድረ-ገጽ አገናኝ ክፈት።' : 'Voice does not work in a downloaded file. Open wEKIL from the web link to use the microphone.'); }
+      else if(k==='network'){ if(listenSpan) listenSpan.textContent = (lang==='am' ? 'የድምጽ አገልግሎቱ አልመለሰም። ኢንተርኔትህን አረጋግጥና እንደገና ሞክር።' : 'The voice service did not answer. Check your internet and try again.'); }
+      else if(k==='audio-capture'){ if(listenSpan) listenSpan.textContent = (lang==='am' ? 'ማይክሮፎን አልተገኘም፣ ወይም ሌላ መተግበሪያ እየተጠቀመበት ነው። ሌሎቹን መተግበሪያዎች ዝጋና እንደገና ሞክር።' : 'No microphone found, or another app is using it. Close other apps and try again.'); }
+      else noHear(); };
+    r.onend = ()=>{ if(!heard && listenSpan && listenSpan.textContent === T[lang].listening) noHear(); };
+    try { r.start(); } catch(err){ noHear(); }
+  }
+
+  document.getElementById('goal').addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendGoal(); }
+  });
+
+  document.getElementById('fileInput').addEventListener('change', (e)=>{
+    const f=e.target.files[0]; if(!f) return;
+    attachedFile=f.name;
+    document.getElementById('attachName').textContent=f.name;
+    document.getElementById('attachRow').classList.add('show');
+    document.getElementById('goal').focus();
+  });
+  applyTheme(); applyLang(); applyPrefs(); applyNtfs();
+  (function(){
+    let id=null; try{ id=localStorage.getItem('wekil_current_chat'); }catch(e){}
+    const list=loadChats().sort((a,b)=>(b.date||0)-(a.date||0));
+    const ch=list.find(x=>x.id===id)||list[0];
+    if(ch && ch.messages && ch.messages.length){ currentChatId=ch.id; currentMessages=ch.messages.slice(); renderCurrentChat(); }
+    renderChatList();
+  })();
+  maybeShowIntro();
+  // ---- Keyboard: keep the message box visible on phones ----
+  // When the virtual keyboard opens, the browser does not resize the
+  // layout (the keyboard overlays it), so visualViewport.height
+  // shrinks by the keyboard height while window.innerHeight stays.
+  // The difference is the keyboard height: move the footer up by it,
+  // add the same space (+16px, the chat's CSS bottom padding) to the
+  // bottom of the chat so the newest message can scroll above the
+  // raised footer, and scroll to the newest message when the keyboard
+  // opens. When it closes, everything returns to normal. Wide
+  // screens are never touched (760px matches the phone drawer).
+  (function(){
+    const vv=window.visualViewport;
+    if(!vv) return;
+    const footer=document.querySelector('footer');
+    const chat=document.getElementById('chat');
+    if(!footer || !chat) return;
+    let kbOpen=false;
+    function onViewport(){
+      if(!window.matchMedia('(max-width: 760px)').matches){ footer.style.transform=''; chat.style.paddingBottom=''; kbOpen=false; return; }
+      const kb=Math.max(0, Math.round(window.innerHeight - vv.height));
+      if(kb>100){
+        footer.style.transform='translateY('+(-kb)+'px)';
+        chat.style.paddingBottom=(kb+16)+'px';
+        if(!kbOpen){ chat.scrollTop=chat.scrollHeight; }
+        kbOpen=true;
+      } else {
+        footer.style.transform='';
+        chat.style.paddingBottom='';
+        kbOpen=false;
+      }
+    }
+    vv.addEventListener('resize', onViewport);
+    vv.addEventListener('scroll', onViewport);
+  })();
+</script>
+</body>
+</html>
